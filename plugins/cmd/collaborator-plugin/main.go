@@ -3,14 +3,26 @@ package main
 import (
 	"net/http"
 
+	collaborator "github.com/krateoplatformops/github-provider-kog/collaborator-plugin/handlers"
 	"github.com/krateoplatformops/github-provider-kog/pkg/handlers"
-	"github.com/krateoplatformops/github-provider-kog/collaborator-plugin/handlers"
 	"github.com/krateoplatformops/github-provider-kog/pkg/health"
 	"github.com/krateoplatformops/github-provider-kog/pkg/server"
 	"github.com/rs/zerolog/log"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
+// @title           GitHub Collaborator Plugin API for Krateo Operator Generator (KOG)
+// @version         1.0
+// @description     Simple wrapper around GitHub API to provide consisentency of API response for Krateo Operator Generator (KOG)
+// @termsOfService  http://swagger.io/terms/
+// @contact.name    Krateo Support
+// @contact.url     https://krateo.io
+// @contact.email   contact@krateoplatformops.io
+// @license.name    Apache 2.0
+// @license.url     http://www.apache.org/licenses/LICENSE-2.0.html
+// @host            localhost:8080
+// @BasePath        /
+// @schemes         http
 func main() {
 	srv := server.New()
 

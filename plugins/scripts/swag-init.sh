@@ -41,17 +41,12 @@ OUTPUT_DIR="${PLUGIN_DIR}/docs"
 swag init --parseDependency -g "${MAIN_GO_PATH}" --output "${OUTPUT_DIR}"
 
 # Define the input and output paths for the conversion script
-#SWAGGER_V2_JSON="${OUTPUT_DIR}/swagger.json"
-#SWAGGER_V2_YAML="${OUTPUT_DIR}/swagger.yaml"
-#OPENAPI_V3_OUTPUT="${OUTPUT_DIR}/openapi3"
-#
-## Generate a YAML version of the swagger.json for completeness
-#echo "Generating swagger.yaml from swagger.json..."
-#cat "${SWAGGER_V2_JSON}" | yq -P > "${SWAGGER_V2_YAML}"
-#
-#echo "Converting Swagger v2 to OpenAPI v3..."
-## Call the conversion script, which will create openapi3.json and openapi3.yaml
-#./scripts/convert_swagger.sh -i "${SWAGGER_V2_JSON}" -o "${OPENAPI_V3_OUTPUT}"
-#
-#echo "Documentation generation complete for ${PLUGIN_NAME}."
-#echo "Output is in ${OUTPUT_DIR}/"
+SWAGGER_V2_JSON="${OUTPUT_DIR}/swagger.json"
+OPENAPI_V3_OUTPUT="${OUTPUT_DIR}/openapi3"
+
+echo "Converting Swagger v2 to OpenAPI v3..."
+# Call the conversion script, which will create openapi3.json and openapi3.yaml
+./scripts/convert_swagger.sh -i "${SWAGGER_V2_JSON}" -o "${OPENAPI_V3_OUTPUT}"
+
+echo "Documentation generation complete for ${PLUGIN_NAME}."
+echo "Output is in ${OUTPUT_DIR}/"

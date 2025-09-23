@@ -17,6 +17,10 @@ It is designed to work with the [`rest-dynamic-controller`](https://github.com/k
 - [Swagger Documentation](#swagger-documentation)
 - [GitHub API Reference](#github-api-reference)
 - [Authentication](#authentication)
+- [Documentation](#documentation)
+- [Build Instructions](#build-instructions)
+  - [Building with ko](#building-with-ko)
+  - [Building with Docker](#building-with-docker)
 
 ## API Endpoints
 
@@ -309,7 +313,7 @@ The plugin will forward the `Authorization` header passed in the request to this
 
 ## Documentation
 
-Each plugin serves its own OpenAPI (Swagger) specification. The documentation is generated using `swag` and is stored within each plugin's directory (e.g., `cmd/collaborator-plugin/docs`).
+Each plugin serves its own OpenAPI specification. The documentation is generated using the `swag` tool and is stored within each plugin's directory (e.g., `cmd/collaborator-plugin/docs`).
 
 To generate or update the documentation for a specific plugin, run the `swag-init.sh` script from this `plugins` directory, passing the plugin's name as an argument.
 
@@ -324,7 +328,7 @@ This will generate the necessary `swagger.json`, `swagger.yaml`, and OpenAPI v3 
 
 This project is a Go workspace-based monorepo containing multiple, independent plugins. The build system is centralized in this directory (`plugins/`).
 
-### Building with Ko
+### Building with ko
 
 The primary way to build and publish the container images is using Google's `ko` tool. The configuration is in the `.ko.yaml` file in this directory.
 
