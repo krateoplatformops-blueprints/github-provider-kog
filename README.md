@@ -1,6 +1,6 @@
-# GitHub Provider KOG Helm Chart
+# GitHub Provider KOG Blueprint
 
-This is a [Helm Chart](https://helm.sh/docs/topics/charts/) that deploys the Krateo GitHub Provider leveraging the [Krateo OASGen Provider](https://github.com/krateoplatformops/oasgen-provider) and using [OpenAPI Specifications (OAS) of the GitHub REST API](https://github.com/github/rest-api-description/blob/main/descriptions/api.github.com/api.github.com.2022-11-28.yaml).
+This is a Blueprint that deploys the GitHub Provider KOG leveraging the [OASGen Provider](https://github.com/krateoplatformops/oasgen-provider) and using [OpenAPI Specifications (OAS) of the GitHub REST API](https://github.com/github/rest-api-description/blob/main/descriptions/api.github.com/api.github.com.2022-11-28.yaml).
 This provider allows you to manage GitHub resources such as repositories, collaborators, teamrepoes, runnergroups and workflows runs in a cloud-native way using the Krateo platform.
 
 ## Summary
@@ -25,16 +25,19 @@ This provider allows you to manage GitHub resources such as repositories, collab
 
 ## Requirements
 
-[Krateo OASGen Provider](https://github.com/krateoplatformops/oasgen-provider) should be installed in your cluster. Follow the related Helm Chart [README](https://github.com/krateoplatformops/oasgen-provider-chart) for installation instructions.
+[OASGen Provider](https://github.com/krateoplatformops/oasgen-provider) should be installed in your cluster. Follow the related Helm Chart [README](https://github.com/krateoplatformops/oasgen-provider-chart) for installation instructions.
 
 ## How to install
 
-To install the chart, use the following commands:
+To install the chart, use the following command:
 
 ```sh
-helm repo add krateo https://charts.krateo.io
-helm repo update krateo
-helm install github-provider krateo/github-provider-kog
+helm install github-provider-kog github-provider-kog \
+  --repo https://marketplace.krateo.io \
+  --namespace <release-namespace> \
+  --create-namespace \
+  --version 1.0.0 \
+  --wait
 ```
 
 > [!NOTE]

@@ -1,0 +1,10 @@
+{{- if .Values.restdefinitions.collaborator.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-collaborator
+data:
+  collaborator.yaml: |
+{{ tpl (.Files.Get "assets/collaborator.yaml") . | indent 4 }}
+{{ end }}
+  

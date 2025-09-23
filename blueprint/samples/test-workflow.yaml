@@ -1,0 +1,20 @@
+apiVersion: github.ogen.krateo.io/v1alpha1
+kind: Workflow
+metadata:
+  name: test-workflow
+  namespace: default
+  annotations:
+    krateo.io/connector-verbose: "true"
+spec:
+  configurationRef:
+    name: my-workflow-config
+    namespace: default
+  owner: krateoplatformops-test
+  repo: workflow-tester
+  workflow_id: test.yaml   # Can be the workflow file name
+  ref: main                # branch or tag name
+  inputs:
+    environment: production
+    version: "v1.2.3"
+    debug_enabled: "false"
+    custom_message: "Test from Krateo"
