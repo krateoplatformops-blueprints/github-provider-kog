@@ -26,6 +26,7 @@ This provider allows you to manage GitHub resources such as repositories, collab
 ## Requirements
 
 [OASGen Provider](https://github.com/krateoplatformops/oasgen-provider) should be installed in your cluster. Follow the related Helm Chart [README](https://github.com/krateoplatformops/oasgen-provider-chart) for installation instructions.
+Note that a standard installation of Krateo contains the OASGen Provider.
 
 ## How to install
 
