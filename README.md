@@ -351,5 +351,5 @@ They also define the operations that can be performed on those resources. Once t
 
 ## Troubleshooting
 
-For troubleshooting, you can refer to the [Troubleshooting guide](./docs/troubleshooting.md) in the `/docs` folder of this chart. 
+For troubleshooting, you can refer to the [Troubleshooting guide](./blueprint/docs/troubleshooting.md) in the `/docs` folder of the blueprint (chart). 
 It contains common issues and solutions related to this chart.
