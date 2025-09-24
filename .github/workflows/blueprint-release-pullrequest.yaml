@@ -39,6 +39,17 @@ jobs:
           else
             echo "tag=${{ steps.chart_version.outputs.tag }}" >> $GITHUB_OUTPUT
           fi
+      
+      - name: Ensure yq is installed
+        run: |
+          if ! command -v yq >/dev/null; then
+            echo "Installing yq..."
+            # Mike Farah yq (Linux amd64); adjust for arm if needed
+            YQ_BIN=/usr/local/bin/yq
+            sudo curl -sSL "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64" -o "${YQ_BIN}"
+            sudo chmod +x "${YQ_BIN}"
+          fi
+          echo "yq version: $(yq --version)"
 
       - name: Resolve and Replace Chart Versions
         run: |
