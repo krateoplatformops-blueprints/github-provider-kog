@@ -1,15 +1,15 @@
-{{- if and .Values.autoscaling.enabled (eq (include "github-provider-kog.plugin.enabled" . | trim) "true") -}}
+{{- if .Values.autoscaling.enabled }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "github-provider-kog.fullname" . }}
+  name: {{ include "collaborator-plugin-chart.fullname" . }}
   labels:
-    {{- include "github-provider-kog.labels" . | nindent 4 }}
+    {{- include "collaborator-plugin-chart.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "github-provider-kog.fullname" . }}
+    name: {{ include "collaborator-plugin-chart.fullname" . }}
   minReplicas: {{ .Values.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.autoscaling.maxReplicas }}
   metrics:

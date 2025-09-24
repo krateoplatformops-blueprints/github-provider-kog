@@ -1,18 +1,16 @@
-{{- if eq (include "github-provider-kog.plugin.enabled" . | trim) "true" -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "github-provider-kog.fullname" . }}-{{ .Values.plugin.suffix | default "plugin" }}
-  namespace: {{ .Release.Namespace }}
+  name: {{ include "teamrepo-plugin-chart.fullname" . }}
   labels:
-    {{- include "github-provider-kog.labels" . | nindent 4 }}
+    {{- include "teamrepo-plugin-chart.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "github-provider-kog.selectorLabels" . | nindent 6 }}
+      {{- include "teamrepo-plugin-chart.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -20,8 +18,8 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "github-provider-kog.labels" . | nindent 8 }}
-        {{- with .Values.podLabels }}
+        {{- include "teamrepo-plugin-chart.labels" . | nindent 8 }}
+	{{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
@@ -29,7 +27,7 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "github-provider-kog.serviceAccountName" . }}
+      serviceAccountName: {{ include "teamrepo-plugin-chart.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -43,9 +41,13 @@ spec:
               containerPort: {{ .Values.service.port }}
               protocol: TCP
           livenessProbe:
-            {{- toYaml .Values.livenessProbe | nindent 12 }}
+            httpGet:
+              path: /healthz
+              port: http
           readinessProbe:
-            {{- toYaml .Values.readinessProbe | nindent 12 }}
+            httpGet:
+              path: /readyz
+              port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- with .Values.volumeMounts }}
@@ -68,4 +70,3 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-{{- end }}

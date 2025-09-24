@@ -66,13 +66,14 @@ http://{{ include "github-provider-kog.fullname" . }}-{{ .Values.plugin.suffix |
 {{- end -}}
 
 {{/*
-Check if the plugin deployment is enabled.
+Check if any plugin deployments are required.
 Logic:
-- Define a static list of resource definitions that require the plugin.
+- Define a static list of resource definitions that require a plugin.
 - Loop through all the enabled restdefinitions from values.yaml.
-- If an enabled definition's name is in the static list, print "true".
+- If any enabled definition's name is in the static list, this helper returns "true".
+- This is used as a global condition to enable or disable the entire plugin umbrella chart.
 */}}
-{{- define "github-provider-kog.plugin.enabled" -}}
+{{- define "github-provider-kog.plugins.enabled" -}}
 {{- $requiresPluginList := list "collaborator" "teamrepo" -}}
 {{- $enabled := false -}}
 {{- range $key, $value := .Values.restdefinitions -}}

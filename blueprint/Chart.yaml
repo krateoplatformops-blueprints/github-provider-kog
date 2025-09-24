@@ -25,3 +25,9 @@ sources:
   - https://github.com/krateoplatformops-blueprints/github-provider-kog
 annotations:
   krateoSupportedVersion: ">= 2.5.1"
+
+dependencies:
+  - name: github-provider-kog-plugins
+    version: GITHUB_PROVIDER_KOG_PLUGINS_CHART_VERSION
+    repository: https://marketplace.krateo.io
+    condition: github-provider-kog.plugins.enabled
