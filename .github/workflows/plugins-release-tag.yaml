@@ -20,10 +20,15 @@ jobs:
         id: parse
         run: |
           TAG="${{ github.ref_name }}"
-          PLUGIN=$(echo $TAG | cut -d'/' -f1)
-          VERSION=$(echo $TAG | cut -d'/' -f2)
+          PLUGIN="${TAG%%/*}"   # before first slash
+          VERSION="${TAG##*/}"  # after last slash
           echo "plugin=${PLUGIN}" >> $GITHUB_OUTPUT
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid version format: $VERSION"
+            echo "Expected format: X.Y.Z (e.g., 1.0.3)"
+            exit 1
+          fi
 
   # Job 2: Build and publish multi-arch container images for the specific plugin.
   build-and-publish-image:
@@ -31,7 +36,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [linux/amd64, linux/arm64]
+        include:
+          - platform: linux/amd64
+            platform_name: linux-amd64
+          - platform: linux/arm64
+            platform_name: linux-arm64
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -62,21 +71,27 @@ jobs:
           platforms: ${{ matrix.platform }}
           push: true
           labels: "org.opencontainers.image.version=${{ needs.parse-tag.outputs.version }}"
-          outputs: type=image,name=ghcr.io/${{ github.repository_owner }}/github-provider-kog/${{ needs.parse-tag.outputs.plugin }},push-by-digest=true,name-canonical=true, push=true
+          outputs: type=image,name=ghcr.io/${{ github.repository_owner }}/github-provider-kog/${{ needs.parse-tag.outputs.plugin }},push-by-digest=true,name-canonical=true,push=true
           build-args: |
             PLUGIN_NAME=${{ needs.parse-tag.outputs.plugin }}
       
       - name: Export digest
         run: |
-          mkdir -p /tmp/digests
+          mkdir -p "/tmp/digests/${{ matrix.platform_name }}"
           digest="${{ steps.build.outputs.digest }}"
-          echo "${digest}" > /tmp/digests/${{ matrix.platform }}
+          echo "DEBUG: digest='${digest}'" >&2
+          if [ -z "$digest" ]; then
+            echo "ERROR: build produced no digest (steps.build.outputs.digest empty). Aborting." >&2
+            exit 1
+          fi
+          echo "${digest}" > "/tmp/digests/${{ matrix.platform_name }}/digest"
       
       - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
-          name: digests-${{ needs.parse-tag.outputs.plugin }}-${{ matrix.platform }}
-          path: /tmp/digests/
+          name: digests-${{ needs.parse-tag.outputs.plugin }}-${{ matrix.platform_name }}
+          path: /tmp/digests/${{ matrix.platform_name }}/
+          if-no-files-found: error
           retention-days: 1
 
   # Job 3: Merge the multi-arch manifests.
@@ -87,17 +102,12 @@ jobs:
       contents: read
       packages: write
     steps:
-      - name: Download amd64 digest
+      - name: Download digests
         uses: actions/download-artifact@v4
         with:
-          name: digests-${{ needs.parse-tag.outputs.plugin }}-linux/amd64
-          path: /tmp/digests/amd64
-      
-      - name: Download arm64 digest
-        uses: actions/download-artifact@v4
-        with:
-          name: digests-${{ needs.parse-tag.outputs.plugin }}-linux/arm64
-          path: /tmp/digests/arm64
+          pattern: digests-${{ needs.parse-tag.outputs.plugin }}-*
+          path: /tmp/digests
+          merge-multiple: true
       
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -113,12 +123,37 @@ jobs:
           images: ghcr.io/${{ github.repository_owner }}/github-provider-kog/${{ needs.parse-tag.outputs.plugin }}
           tags: type=raw,value=${{ needs.parse-tag.outputs.version }}
       
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
       - name: Create and push manifest list
         run: |
-          docker buildx imagetools create \
-            -t ${{ steps.meta.outputs.tags }} \
-            $(cat /tmp/digests/amd64/linux/amd64) \
-            $(cat /tmp/digests/arm64/linux/arm64)
+          set -euo pipefail
+          REG="ghcr.io/${{ github.repository_owner }}/github-provider-kog/${{ needs.parse-tag.outputs.plugin }}"
+
+          # Build full image@sha references from the downloaded digest files.
+          IMAGES=""
+          for f in /tmp/digests/*/digest; do
+            d="$(cat "$f")"  # e.g. sha256:abcd...
+            if [ -z "$d" ]; then
+              echo "ERROR: empty digest in $f" >&2
+              exit 1
+            fi
+            if [[ "${d:-}" != sha256:* ]]; then
+              d="sha256:${d}"
+            fi
+            IMAGES="$IMAGES ${REG}@${d}"
+          done
+
+          # Expand tags from metadata JSON into multiple -t args
+          TAG_OPTS=$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< '${{ steps.meta.outputs.json }}')
+          if [ -z "${IMAGES}" ]; then
+            echo "ERROR: no images to merge (no digest files found)." >&2
+            exit 1
+          fi
+
+          echo "docker buildx imagetools create ${TAG_OPTS} ${IMAGES}"
+          eval "docker buildx imagetools create ${TAG_OPTS} ${IMAGES}"
 
   # Job 4: Release the specific Helm chart for the plugin.
   release-plugin-chart:
@@ -130,24 +165,35 @@ jobs:
       
       - name: Authenticate with GitHub App
         id: authenticate
-        uses: tibdex/github-app-token@v1
+        uses: actions/create-github-app-token@v2
         with:
-          app_id: ${{ secrets.APP_ID }}
-          private_key: ${{ secrets.PRIVATE_KEY }}
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
       
       - name: Set up Helm
         uses: azure/setup-helm@v4.1.0
+      
+      - name: Ensure yq is installed
+        run: |
+          if ! command -v yq >/dev/null; then
+            echo "Installing yq..."
+            # Mike Farah yq (Linux amd64); adjust for arm if needed
+            YQ_BIN=/usr/local/bin/yq
+            sudo curl -sSL "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64" -o "${YQ_BIN}"
+            sudo chmod +x "${YQ_BIN}"
+          fi
+          echo "yq version: $(yq --version)"
       
       - name: Update Chart Versions
         run: |
           CHART_DIR="./${{ needs.parse-tag.outputs.plugin }}-chart"
           NEW_VERSION="${{ needs.parse-tag.outputs.version }}"
           echo "Updating ${CHART_DIR} to version ${NEW_VERSION}"
-          yq e ".version = \"${NEW_VERSION#v}\" | .appVersion = \"${NEW_VERSION#v}\"" -i "${CHART_DIR}/Chart.yaml"
-          yq e ".image.tag = \"${NEW_VERSION#v}\"" -i "${CHART_DIR}/values.yaml"
+          yq e ".version = \"${NEW_VERSION}\" | .appVersion = \"${NEW_VERSION}\"" -i "${CHART_DIR}/Chart.yaml"
+          yq e ".image.tag = \"${NEW_VERSION}\"" -i "${CHART_DIR}/values.yaml"
 
       - name: Publish Helm chart to gh-pages
-        uses: stefanprodan/helm-gh-pages@master
+        uses: stefanprodan/helm-gh-pages@v1.7.0
         with:
           token: ${{ steps.authenticate.outputs.token }}
           charts_dir: ./${{ needs.parse-tag.outputs.plugin }}-chart
