@@ -1,6 +1,4 @@
-# .github/workflows/umbrella-chart-release.yaml
-name: Umbrella Chart Release
-
+name: plugins-umbrella-chart-release-tag
 on:
   push:
     tags: ["[0-9]+.[0-9]+.[0-9]+"]

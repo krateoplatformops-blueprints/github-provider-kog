@@ -1,5 +1,4 @@
-# .github/workflows/plugin-release.yaml
-name: Plugin Release
+name: plugins-release-tag
 
 on:
   push:
