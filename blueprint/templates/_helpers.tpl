@@ -61,8 +61,12 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
-{{- define "webServiceUrl" -}}
-http://{{ include "github-provider-kog.fullname" . }}-{{ .Values.plugin.suffix | default "plugin" }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}
+{{- define "collaborator.webServiceUrl" -}}
+http://{{ .Release.Name }}-collaborator-plugin.{{ .Release.Namespace }}.svc.cluster.local:8080
+{{- end -}}
+
+{{- define "teamrepo.webServiceUrl" -}}
+http://{{ .Release.Name }}-teamrepo-plugin.{{ .Release.Namespace }}.svc.cluster.local:8080
 {{- end -}}
 
 {{/*

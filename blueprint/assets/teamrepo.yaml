@@ -21,7 +21,7 @@ paths:
   "/teamrepository/orgs/{org}/teams/{team_slug}/repos/{owner}/{repo}":
     get:
       servers:
-      - url: {{ include "webServiceUrl" . }}
+      - url: {{ include "teamrepo.webServiceUrl" . }}
       summary: Get the permission of a team in a repository
       description: Get the permission of a team in a repository
       operationId: get-team-repo-permission

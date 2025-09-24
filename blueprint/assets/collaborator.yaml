@@ -21,7 +21,7 @@ paths:
   /repository/{owner}/{repo}/collaborators/{username}:
     post:
       servers:
-        - url: {{ include "webServiceUrl" . }}
+        - url: {{ include "collaborator.webServiceUrl" . }}
           description: Url used for a pod exposed with 8080 port exposed via clusterIP service
       summary: Add a repository collaborator
       description: Add a repository collaborator or invite a user to collaborate on a repository
@@ -65,7 +65,7 @@ paths:
       x-codegen-request-body-name: permission
     delete:
       servers:
-        - url: {{ include "webServiceUrl" . }}
+        - url: {{ include "collaborator.webServiceUrl" . }}
           description: Url used for a pod exposed with 8080 port exposed via clusterIP service
       summary: Delete repository collaborator or cancel invitation
       description: Remove a collaborator from repository or cancel a pending invitation
@@ -110,7 +110,7 @@ paths:
                 $ref: '#/components/schemas/collaborator.Message'
     patch:
       servers:
-        - url: {{ include "webServiceUrl" . }}
+        - url: {{ include "collaborator.webServiceUrl" . }}
           description: Url used for a pod exposed with 8080 port exposed via clusterIP service
       summary: Update repository collaborator permission or invitation
       description: Update the permission of an existing collaborator or pending invitation
@@ -158,7 +158,7 @@ paths:
   /repository/{owner}/{repo}/collaborators/{username}/permission:
     get:
       servers:
-        - url: {{ include "webServiceUrl" . }}
+        - url: {{ include "collaborator.webServiceUrl" . }}
           description: Url used for a pod exposed with 8080 port exposed via clusterIP service
       summary: Get the permission of a user in a repository
       description: Get the permission of a user in a repository
