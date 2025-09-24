@@ -2,10 +2,8 @@ name: plugins-release-pullrequest
 
 on:
   pull_request:
-    #branches:
-    #  - main
-    paths:
-      - 'plugins/**'
+    branches:
+      - main
 
 jobs:
   test-and-lint:
