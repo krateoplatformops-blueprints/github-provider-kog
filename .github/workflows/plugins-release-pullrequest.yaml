@@ -27,8 +27,8 @@ jobs:
       - name: Run Go Tests
         run: go test -v -cover $(go work edit -json | jq -r '.Use[].DiskPath' | sed 's|$|/...|' | tr '\n' ' ')
 
-      #- name: Install golangci-lint
-      #  run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.57.2
+      - name: Install golangci-lint
+        run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.57.2
 
-      #- name: Run golangci-lint
-      #  run: golangci-lint run $(go work edit -json | jq -r '.Use[].DiskPath' | sed 's|$|/...|' | tr '\n' ' ')
+      - name: Run golangci-lint
+        run: golangci-lint run $(go work edit -json | jq -r '.Use[].DiskPath' | sed 's|$|/...|' | tr '\n' ' ')
