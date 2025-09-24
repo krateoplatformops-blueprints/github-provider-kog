@@ -2,8 +2,8 @@ name: blueprint-release-pullrequest
 
 on:
   pull_request:
-    branches:
-      - main
+    #branches:
+    #  - main
     paths:
       - 'blueprint/**'
 
