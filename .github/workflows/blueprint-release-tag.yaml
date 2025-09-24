@@ -1,8 +1,12 @@
-name: release-tag
+name: blueprint-release-tag
 
 on:
   push:
     tags: ["[0-9]+.[0-9]+.[0-9]+"]
+    branches:
+      - main
+    paths:
+      - 'blueprint/**'
 
 jobs:
   package:

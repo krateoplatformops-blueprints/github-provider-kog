@@ -353,3 +353,22 @@ They also define the operations that can be performed on those resources. Once t
 
 For troubleshooting, you can refer to the [Troubleshooting guide](./blueprint/docs/troubleshooting.md) in the `/docs` folder of the blueprint (chart). 
 It contains common issues and solutions related to this chart.
+
+## CI/CD
+
+This repository contains a monorepo for a Helm chart (the "blueprint") and multiple Go plugins. 
+The CI/CD system is managed via GitHub Actions and is designed to be efficient by only running jobs relevant to the changed files.
+
+### Workflows
+
+- **Blueprint CI/CD (`blueprint-release-*.yaml`):**
+  - These workflows are responsible for linting, packaging, and publishing the Helm chart.
+  - They are triggered only on changes to files within the `blueprint/` directory.
+  - Pull requests will trigger a linting job.
+  - Pushes to a tag (e.g., `1.2.3`) will trigger a release to the Helm repository.
+
+- **Plugins CI/CD (`plugin-release-*.yaml`):**
+  - These workflows handle the building, testing, and releasing of Go plugins.
+  - They are triggered only on changes to files within the `plugins/<plugin-name>/` directories.
+  - Pull requests will trigger build and test jobs.
+  - Pushes to a tag (e.g., `1.2.3`) will trigger a release to the GitHub Container Registry.

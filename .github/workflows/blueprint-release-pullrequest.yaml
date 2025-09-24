@@ -1,9 +1,11 @@
-name: release-pullrequest
+name: blueprint-release-pullrequest
 
 on:
   pull_request:
     branches:
       - main
+    paths:
+      - 'blueprint/**'
 
 jobs:
   package:

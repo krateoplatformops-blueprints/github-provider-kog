@@ -1,0 +1,36 @@
+name: plugins-release-pullrequest
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'plugins/**'
+
+jobs:
+  test-and-lint:
+    runs-on: ubuntu-latest
+    
+    # Set the working directory to the plugins root
+    defaults:
+      run:
+        working-directory: ./plugins
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+          cache-dependency-path: "plugins/go.work.sum"
+
+      - name: Run Go Tests
+        run: go test -v -cover $(go work edit -json | jq -r '.Use[].DiskPath' | sed 's|$|/...|' | tr '\n' ' ')
+
+      #- name: Install golangci-lint
+      #  run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.57.2
+
+      #- name: Run golangci-lint
+      #  run: golangci-lint run $(go work edit -json | jq -r '.Use[].DiskPath' | sed 's|$|/...|' | tr '\n' ' ')

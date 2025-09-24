@@ -1,0 +1,81 @@
+name: plugins-release-tag
+
+on:
+  push:
+    tags: ["[0-9]+.[0-9]+.[0-9]+"]
+    branches:
+      - main
+    paths:
+      - 'plugins/**'
+
+jobs:
+  # This job identifies which plugins have changed.
+  list-changed-plugins:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.changed-plugins.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get changed plugin directories
+        id: changed-plugins
+        run: |
+          # Use 'git diff' to find changed files within the 'plugins/cmd/' directory.
+          # Then, extract the unique plugin directory names from those paths.
+          # The result is a JSON array of plugin names, e.g., ["collaborator-plugin", "teamrepo-plugin"]
+          PLUGINS=$( 
+            git diff --name-only ${{ github.event.before }} ${{ github.sha }} |
+            grep -E '^plugins/cmd/[^/]+/' |
+            sed -E 's|plugins/cmd/([^/]+)/.*|\1|' |
+            sort -u |
+            jq -R -s -c 'split("\n") | map(select(length > 0))'
+          )
+          echo "matrix=$(echo $PLUGINS)" >> $GITHUB_OUTPUT
+
+  # This job builds and publishes the images for the changed plugins using Docker.
+  build-and-publish:
+    needs: list-changed-plugins
+    if: needs.list-changed-plugins.outputs.matrix != '{"plugin":[]}'
+    strategy:
+      matrix: ${{ fromJson(needs.list-changed-plugins.outputs.matrix) }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          # The image name is dynamically created using the plugin name from the matrix
+          images: ghcr.io/${{ github.repository_owner }}/github-provider-kog/${{ matrix.plugin }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./plugins
+          file: ./plugins/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # The plugin name from the matrix is passed as a build argument
+          build-args: |
+            PLUGIN_NAME=${{ matrix.plugin }}
