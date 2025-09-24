@@ -34,8 +34,8 @@ jobs:
         id: set_version
         run: |
           if [ -z "${{ steps.chart_version.outputs.tag }}" ]; then
-            echo "No tag found, using default 0.1.0"
-            echo "tag=0.1.0" >> $GITHUB_OUTPUT
+            echo "No tag found, using default 1.0.0"
+            echo "tag=1.0.0" >> $GITHUB_OUTPUT
           else
             echo "tag=${{ steps.chart_version.outputs.tag }}" >> $GITHUB_OUTPUT
           fi
@@ -56,16 +56,16 @@ jobs:
 
           # Fallback logic for the dependency chart
           if [ "$PLUGINS_CHART_VERSION" == "null" ] || [ -z "$PLUGINS_CHART_VERSION" ]; then
-            echo "Warning: Could not find published github-provider-kog-plugins chart. Using fallback version 0.1.0 for linting."
-            PLUGINS_CHART_VERSION="0.1.0"
+            echo "Warning: Could not find published github-provider-kog-plugins chart. Using fallback version 1.0.0 for linting."
+            PLUGINS_CHART_VERSION="1.0.0"
           fi
 
           echo "Updating chart to version ${CHART_VERSION} for linting"
           echo "Setting dependency github-provider-kog-plugins to version ${PLUGINS_CHART_VERSION}"
 
           # Perform replacements on the Chart.yaml for the linting job
-          sed -i "s/CHART_VERSION/${CHART_VERSION#v}/g" "${CHART_DIR}/Chart.yaml"
-          sed -i "s/GITHUB_PROVIDER_KOG_PLUGINS_CHART_VERSION/${PLUGINS_CHART_VERSION}/g" "${CHART_DIR}/Chart.yaml"
+          yq e ".version = \"${CHART_VERSION#v}\"" -i "${CHART_DIR}/Chart.yaml"
+          yq e "(.dependencies[] | select(.name == \"github-provider-kog-plugins\")).version = \"${PLUGINS_CHART_VERSION}\"" -i "${CHART_DIR}/Chart.yaml"
 
           echo "Final Chart.yaml content for this lint run:"
           cat "${CHART_DIR}/Chart.yaml"

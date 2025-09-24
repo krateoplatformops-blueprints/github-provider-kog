@@ -38,21 +38,18 @@ jobs:
           echo "Fetching latest version for dependency chart..."
           PLUGINS_CHART_VERSION=$(helm search repo ${HELM_REPO_NAME}/github-provider-kog-plugins -o json | jq -r '.[0].version')
 
-          if [ -z "$PLUGINS_CHART_VERSION" ]; then
+          if [ "$PLUGINS_CHART_VERSION" == "null" ] || [ -z "$PLUGINS_CHART_VERSION" ]; then
             echo "Error: Could not determine latest version for github-provider-kog-plugins chart."
+            echo "Make sure the github-provider-kog-plugins chart is published before releasing the blueprint."
             exit 1
           fi
 
           echo "Updating chart to version ${NEW_VERSION}"
           echo "Setting dependency github-provider-kog-plugins to version ${PLUGINS_CHART_VERSION}"
 
-          # Perform replacements on a temporary copy
-          cp "${CHART_DIR}/Chart.yaml" "${CHART_DIR}/Chart.yaml.tmp"
-          sed -i "s/CHART_VERSION/${NEW_VERSION#v}/g" "${CHART_DIR}/Chart.yaml.tmp"
-          sed -i "s/GITHUB_PROVIDER_KOG_PLUGINS_CHART_VERSION/${PLUGINS_CHART_VERSION}/g" "${CHART_DIR}/Chart.yaml.tmp"
-          
-          # Overwrite the original for the duration of the job
-          mv "${CHART_DIR}/Chart.yaml.tmp" "${CHART_DIR}/Chart.yaml"
+          # Perform replacements using yq for robustness
+          yq e ".version = \"${NEW_VERSION#v}\"" -i "${CHART_DIR}/Chart.yaml"
+          yq e "(.dependencies[] | select(.name == \"github-provider-kog-plugins\")).version = \"${PLUGINS_CHART_VERSION}\"" -i "${CHART_DIR}/Chart.yaml"
 
           echo "Final Chart.yaml content for this release:"
           cat "${CHART_DIR}/Chart.yaml"

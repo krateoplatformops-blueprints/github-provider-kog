@@ -51,16 +51,12 @@ jobs:
           
           echo "Updating umbrella chart to version ${UMBRELLA_VERSION} in-memory..."
           
-          # Create a temporary Chart.yaml to perform replacements
-          cp "${CHART_DIR}/Chart.yaml" "${CHART_DIR}/Chart.yaml.tmp"
+          yq e ".version = \"${UMBRELLA_VERSION}\"" -i "${CHART_DIR}/Chart.yaml"
+          yq e "(.dependencies[] | select(.name == \"collaborator-plugin\")).version = \"${COLLABORATOR_VERSION}\"" -i "${CHART_DIR}/Chart.yaml"
+          yq e "(.dependencies[] | select(.name == \"teamrepo-plugin\")).version = \"${TEAMREPO_VERSION}\"" -i "${CHART_DIR}/Chart.yaml"
 
-          # Replace all placeholder versions in the temporary file
-          sed -i "s/GITHUB_PROVIDER_KOG_PLUGINS_CHART_VERSION/${UMBRELLA_VERSION}/g" "${CHART_DIR}/Chart.yaml.tmp"
-          sed -i "s/COLLABORATOR_PLUGIN_CHART_VERSION/${COLLABORATOR_VERSION}/g" "${CHART_DIR}/Chart.yaml.tmp"
-          sed -i "s/TEAMREPO_PLUGIN_CHART_VERSION/${TEAMREPO_VERSION}/g" "${CHART_DIR}/Chart.yaml.tmp"
-
-          # Overwrite the original with the updated version FOR THIS JOB ONLY
-          mv "${CHART_DIR}/Chart.yaml.tmp" "${CHART_DIR}/Chart.yaml"
+          echo "Final Chart.yaml content for this release:"
+          cat "${CHART_DIR}/Chart.yaml"
 
       - name: Publish Helm chart
         uses: stefanprodan/helm-gh-pages@master
