@@ -54,9 +54,10 @@ jobs:
           echo "Fetching latest version for dependency chart..."
           PLUGINS_CHART_VERSION=$(helm search repo ${HELM_REPO_NAME}/github-provider-kog-plugins -o json | jq -r '.[0].version')
 
-          if [ -z "$PLUGINS_CHART_VERSION" ]; then
-            echo "Error: Could not determine latest version for github-provider-kog-plugins chart."
-            exit 1
+          # Fallback logic for the dependency chart
+          if [ "$PLUGINS_CHART_VERSION" == "null" ] || [ -z "$PLUGINS_CHART_VERSION" ]; then
+            echo "Warning: Could not find published github-provider-kog-plugins chart. Using fallback version 0.1.0 for linting."
+            PLUGINS_CHART_VERSION="0.1.0"
           fi
 
           echo "Updating chart to version ${CHART_VERSION} for linting"
