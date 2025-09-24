@@ -17,15 +17,18 @@ jobs:
           app_id: ${{ secrets.APP_ID }}
           private_key: ${{ secrets.PRIVATE_KEY }}
 
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4.1.0
+
       - name: Extract latest Chart Version
         id: chart_version
         uses: tdemin/find-latest-tag@v1
         continue-on-error: true
         with:
           repo: https://${{ steps.authenticate.outputs.token }}@github.com/${{ github.repository }}.git
-
-      - name: Checkout
-        uses: actions/checkout@v3
 
       - name: Set CHART_VERSION (fallback if no tag)
         id: set_version
@@ -37,14 +40,34 @@ jobs:
             echo "tag=${{ steps.chart_version.outputs.tag }}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Print Chart Version
-        run: echo "CHART_VERSION=${{ steps.set_version.outputs.tag }}"
+      - name: Resolve and Replace Chart Versions
+        run: |
+          CHART_DIR="./blueprint"
+          CHART_VERSION="${{ steps.set_version.outputs.tag }}"
+          HELM_REPO_URL="https://marketplace.krateo.io"
+          HELM_REPO_NAME="krateo-marketplace"
 
-      - name: Replace Chart Version in Chart.yaml
-        run: sed -i "s/CHART_VERSION/${{ steps.set_version.outputs.tag }}/g" ./blueprint/Chart.yaml
+          echo "Setting up Helm repository..."
+          helm repo add ${HELM_REPO_NAME} ${HELM_REPO_URL}
+          helm repo update
 
-      - name: Set up Helm
-        uses: azure/setup-helm@v4.1.0
+          echo "Fetching latest version for dependency chart..."
+          PLUGINS_CHART_VERSION=$(helm search repo ${HELM_REPO_NAME}/github-provider-kog-plugins -o json | jq -r '.[0].version')
+
+          if [ -z "$PLUGINS_CHART_VERSION" ]; then
+            echo "Error: Could not determine latest version for github-provider-kog-plugins chart."
+            exit 1
+          fi
+
+          echo "Updating chart to version ${CHART_VERSION} for linting"
+          echo "Setting dependency github-provider-kog-plugins to version ${PLUGINS_CHART_VERSION}"
+
+          # Perform replacements on the Chart.yaml for the linting job
+          sed -i "s/CHART_VERSION/${CHART_VERSION#v}/g" "${CHART_DIR}/Chart.yaml"
+          sed -i "s/GITHUB_PROVIDER_KOG_PLUGINS_CHART_VERSION/${PLUGINS_CHART_VERSION}/g" "${CHART_DIR}/Chart.yaml"
+
+          echo "Final Chart.yaml content for this lint run:"
+          cat "${CHART_DIR}/Chart.yaml"
 
       - name: Helm lint
         run: helm lint ./blueprint
