@@ -1,0 +1,73 @@
+# .github/workflows/umbrella-chart-release.yaml
+name: Umbrella Chart Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'The new semantic version for the umbrella chart (e.g., 1.3.0)'
+        required: true
+
+jobs:
+  release-umbrella-chart:
+    runs-on: ubuntu-latest
+    permissions:
+      # Write permission is only needed for publishing packages, not for code.
+      packages: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate with GitHub App for Helm Push
+        id: authenticate
+        uses: tibdex/github-app-token@v1
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.PRIVATE_KEY }}
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4.1.0
+
+      - name: Update Chart.yaml with latest versions
+        run: |
+          CHART_DIR="./github-provider-kog-plugins-chart"
+          UMBRELLA_VERSION="${{ github.event.inputs.version }}"
+          HELM_REPO_URL="https://marketplace.krateo.io"
+          HELM_REPO_NAME="krateo-marketplace"
+
+          echo "Setting up Helm repository..."
+          helm repo add ${HELM_REPO_NAME} ${HELM_REPO_URL}
+          helm repo update
+
+          echo "Fetching latest versions for dependencies..."
+          COLLABORATOR_VERSION=$(helm search repo ${HELM_REPO_NAME}/collaborator-plugin -o json | jq -r '.[0].version')
+          TEAMREPO_VERSION=$(helm search repo ${HELM_REPO_NAME}/teamrepo-plugin -o json | jq -r '.[0].version')
+
+          if [ -z "$COLLABORATOR_VERSION" ] || [ -z "$TEAMREPO_VERSION" ]; then
+            echo "Error: Could not determine latest version for one or more plugin charts."
+            exit 1
+          fi
+          
+          echo "Updating umbrella chart to version ${UMBRELLA_VERSION} in-memory..."
+          
+          # Create a temporary Chart.yaml to perform replacements
+          cp "${CHART_DIR}/Chart.yaml" "${CHART_DIR}/Chart.yaml.tmp"
+
+          # Replace all placeholder versions in the temporary file
+          sed -i "s/GITHUB_PROVIDER_KOG_PLUGINS_CHART_VERSION/${UMBRELLA_VERSION}/g" "${CHART_DIR}/Chart.yaml.tmp"
+          sed -i "s/COLLABORATOR_PLUGIN_CHART_VERSION/${COLLABORATOR_VERSION}/g" "${CHART_DIR}/Chart.yaml.tmp"
+          sed -i "s/TEAMREPO_PLUGIN_CHART_VERSION/${TEAMREPO_VERSION}/g" "${CHART_DIR}/Chart.yaml.tmp"
+
+          # Overwrite the original with the updated version FOR THIS JOB ONLY
+          mv "${CHART_DIR}/Chart.yaml.tmp" "${CHART_DIR}/Chart.yaml"
+
+      - name: Publish Helm chart
+        uses: stefanprodan/helm-gh-pages@master
+        with:
+          token: ${{ steps.authenticate.outputs.token }}
+          charts_dir: ./github-provider-kog-plugins-chart
+          charts_url: https://marketplace.krateo.io
+          owner: krateoplatformops-blueprints
+          repository: marketplace
+          branch: gh-pages

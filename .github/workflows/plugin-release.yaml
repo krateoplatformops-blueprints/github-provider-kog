@@ -1,0 +1,145 @@
+# .github/workflows/plugin-release.yaml
+name: Plugin Release
+
+on:
+  push:
+    tags:
+      # This workflow triggers on tags prefixed with a plugin name, e.g.,
+      # collaborator-plugin/v1.0.3
+      # teamrepo-plugin/v2.8.1
+      - '*/*'
+
+jobs:
+  # Job 1: Parse the Git tag to get the plugin name and version.
+  parse-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      plugin: ${{ steps.parse.outputs.plugin }}
+      version: ${{ steps.parse.outputs.version }}
+    steps:
+      - name: Parse Git Tag
+        id: parse
+        run: |
+          TAG="${{ github.ref_name }}"
+          PLUGIN=$(echo $TAG | cut -d'/' -f1)
+          VERSION=$(echo $TAG | cut -d'/' -f2)
+          echo "plugin=${PLUGIN}" >> $GITHUB_OUTPUT
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+  # Job 2: Build and publish multi-arch container images for the specific plugin.
+  build-and-publish-image:
+    needs: parse-tag
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [linux/amd64, linux/arm64]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push by digest
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: ./plugins
+          file: ./plugins/Dockerfile
+          platforms: ${{ matrix.platform }}
+          push: true
+          labels: "org.opencontainers.image.version=${{ needs.parse-tag.outputs.version }}"
+          outputs: type=image,name=ghcr.io/${{ github.repository_owner }}/github-provider-kog/${{ needs.parse-tag.outputs.plugin }},push-by-digest=true,name-canonical=true
+          build-args: |
+            PLUGIN_NAME=${{ needs.parse-tag.outputs.plugin }}
+      - name: Export digest
+        run: |
+          mkdir -p /tmp/digests
+          digest="${{ steps.build.outputs.digest }}"
+          echo "${digest}" > /tmp/digests/${{ matrix.platform }}
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ needs.parse-tag.outputs.plugin }}-${{ matrix.platform }}
+          path: /tmp/digests/
+          retention-days: 1
+
+  # Job 3: Merge the multi-arch manifests.
+  merge-manifest:
+    needs: [parse-tag, build-and-publish-image]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Download amd64 digest
+        uses: actions/download-artifact@v4
+        with:
+          name: digests-${{ needs.parse-tag.outputs.plugin }}-linux/amd64
+          path: /tmp/digests/amd64
+      - name: Download arm64 digest
+        uses: actions/download-artifact@v4
+        with:
+          name: digests-${{ needs.parse-tag.outputs.plugin }}-linux/arm64
+          path: /tmp/digests/arm64
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/github-provider-kog/${{ needs.parse-tag.outputs.plugin }}
+          tags: type=raw,value=${{ needs.parse-tag.outputs.version }}
+      - name: Create and push manifest list
+        run: |
+          docker buildx imagetools create \
+            -t ${{ steps.meta.outputs.tags }} \
+            $(cat /tmp/digests/amd64/linux/amd64) \
+            $(cat /tmp/digests/arm64/linux/arm64)
+
+  # Job 4: Release the specific Helm chart for the plugin.
+  release-plugin-chart:
+    needs: [parse-tag, merge-manifest]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Authenticate with GitHub App
+        id: authenticate
+        uses: tibdex/github-app-token@v1
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.PRIVATE_KEY }}
+      - name: Set up Helm
+        uses: azure/setup-helm@v4.1.0
+      - name: Update Chart Versions
+        run: |
+          CHART_DIR="./${{ needs.parse-tag.outputs.plugin }}-chart"
+          NEW_VERSION="${{ needs.parse-tag.outputs.version }}"
+          echo "Updating ${CHART_DIR} to version ${NEW_VERSION}"
+          yq e ".version = \"${NEW_VERSION#v}\" | .appVersion = \"${NEW_VERSION#v}\"" -i "${CHART_DIR}/Chart.yaml"
+          yq e ".image.tag = \"${NEW_VERSION#v}\"" -i "${CHART_DIR}/values.yaml"
+
+      - name: Publish Helm chart to gh-pages
+        uses: stefanprodan/helm-gh-pages@master
+        with:
+          token: ${{ steps.authenticate.outputs.token }}
+          charts_dir: ./${{ needs.parse-tag.outputs.plugin }}-chart
+          charts_url: https://charts.krateo.io
+          owner: krateoplatformops
+          repository: helm-charts
+          branch: gh-pages
