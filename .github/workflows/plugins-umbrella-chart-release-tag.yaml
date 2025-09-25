@@ -2,8 +2,7 @@ name: plugins-umbrella-chart-release-tag
 on:
   push:
     tags: ["[0-9]+.[0-9]+.[0-9]+"]
-    branches:
-      - main
+
   # Alternatively, allow manual triggering with a specified version
   workflow_dispatch:
     inputs:
