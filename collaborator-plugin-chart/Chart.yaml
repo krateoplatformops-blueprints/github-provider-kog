@@ -1,6 +1,0 @@
-apiVersion: v2
-name: github-provider-kog-collaborator-plugin
-description: A Helm chart for deploying the GitHub KOG Collaborator Plugin.
-type: application
-version: TEAMREPO_PLUGIN_CHART_VERSION
-appVersion: TEAMREPO_PLUGIN_APP_VERSION

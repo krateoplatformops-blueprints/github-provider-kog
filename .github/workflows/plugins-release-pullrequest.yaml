@@ -45,13 +45,19 @@ jobs:
         run: |
           ALL_PLUGINS=$(ls -d plugins/cmd/*-plugin | xargs -n 1 basename)
           PLUGINS_TO_BUILD="[]"
+          CHANGED_FILES="${{ steps.changed-files.outputs.all_changed_files }}"
 
-          if grep -q "plugins/pkg/" <<< "${{ steps.changed-files.outputs.all_changed_files }}"; then
-            echo "Building all plugins due to pkg folder change."
+          # Find changes in shared files (in plugins/ but not in plugins/cmd/)
+          SHARED_CHANGES=$(echo "$CHANGED_FILES" | grep '^plugins/' | grep -v '^plugins/cmd/')
+
+          if [ -n "$SHARED_CHANGES" ]; then
+            echo "Shared file changes detected, building all plugins."
+            echo "Triggering file: $(echo "$SHARED_CHANGES" | head -n1)"
             PLUGINS_TO_BUILD=$(echo "$ALL_PLUGINS" | jq -R . | jq -s -c .)
           else
+            echo "No shared file changes. Checking for individual plugin changes."
             for plugin in $ALL_PLUGINS; do
-              if grep -q "plugins/cmd/$plugin/" <<< "${{ steps.changed-files.outputs.all_changed_files }}"; then
+              if echo "$CHANGED_FILES" | grep -q "plugins/cmd/$plugin/"; then
                 PLUGINS_TO_BUILD=$(echo "$PLUGINS_TO_BUILD" | jq -c --arg p "$plugin" '. + [$p]')
                 echo "Added $plugin to build list."
               fi

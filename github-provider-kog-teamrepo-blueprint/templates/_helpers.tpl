@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "github-provider-kog.name" -}}
+{{- define "teamrepo-plugin-chart.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "github-provider-kog.fullname" -}}
+{{- define "teamrepo-plugin-chart.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "github-provider-kog.chart" -}}
+{{- define "teamrepo-plugin-chart.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "github-provider-kog.labels" -}}
-helm.sh/chart: {{ include "github-provider-kog.chart" . }}
-{{ include "github-provider-kog.selectorLabels" . }}
+{{- define "teamrepo-plugin-chart.labels" -}}
+helm.sh/chart: {{ include "teamrepo-plugin-chart.chart" . }}
+{{ include "teamrepo-plugin-chart.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,45 +45,22 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "github-provider-kog.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "github-provider-kog.name" . }}
+{{- define "teamrepo-plugin-chart.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "teamrepo-plugin-chart.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "github-provider-kog.serviceAccountName" -}}
+{{- define "teamrepo-plugin-chart.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "github-provider-kog.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "teamrepo-plugin-chart.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
 
-{{- define "collaborator.webServiceUrl" -}}
-http://{{ .Release.Name }}-collaborator-plugin.{{ .Release.Namespace }}.svc.cluster.local:8080
-{{- end -}}
-
 {{- define "teamrepo.webServiceUrl" -}}
 http://{{ .Release.Name }}-teamrepo-plugin.{{ .Release.Namespace }}.svc.cluster.local:8080
-{{- end -}}
-
-{{/*
-Check if any plugin deployments are required.
-Logic:
-- Define a static list of resource definitions that require a plugin.
-- Loop through all the enabled restdefinitions from values.yaml.
-- If any enabled definition's name is in the static list, this helper returns "true".
-- This is used as a global condition to enable or disable the entire plugin umbrella chart.
-*/}}
-{{- define "github-provider-kog.plugins.enabled" -}}
-{{- $requiresPluginList := list "collaborator" "teamrepo" -}}
-{{- $enabled := false -}}
-{{- range $key, $value := .Values.restdefinitions -}}
-{{- if and $value.enabled (has $key $requiresPluginList) -}}
-{{- $enabled = true -}}
-{{- end -}}
-{{- end -}}
-{{- printf "%t" $enabled -}}
 {{- end -}}
