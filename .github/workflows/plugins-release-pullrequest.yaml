@@ -62,7 +62,7 @@ jobs:
           echo "matrix={\"plugin\":${PLUGINS_TO_BUILD}}" >> $GITHUB_OUTPUT
 
   build-images-on-pr:
-    # Only run if there are plugins to build
+    # Only run if there are plugins to build (changes detected)
     if: needs.determine-changes.outputs.matrix != '{"plugin":[]}' 
     needs: [test-and-lint-code, determine-changes]
     runs-on: ubuntu-latest
