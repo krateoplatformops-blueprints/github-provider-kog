@@ -51,6 +51,8 @@ jobs:
             echo "Error: Could not determine latest version for github-provider-kog-plugins chart (umbrella chart)."
             echo "Make sure the github-provider-kog-plugins chart is published before releasing the blueprint."
             exit 1
+          else
+            echo "Latest github-provider-kog-plugins chart version: $PLUGINS_CHART_VERSION"
           fi
 
           echo "Updating chart to version ${NEW_VERSION}"
