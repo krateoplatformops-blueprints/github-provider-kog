@@ -1,4 +1,3 @@
-{{- if .Values.restdefinitions.runnergroup.enabled }}
 kind: RestDefinition
 apiVersion: ogen.krateo.io/v1alpha1
 metadata:
@@ -45,4 +44,3 @@ spec:
       fromRestDefinition:
         actions:
           - findby
-{{ end }}
