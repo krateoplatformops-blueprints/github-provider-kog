@@ -1,7 +1,9 @@
-# Krateo Github Plugin for `rest-dynamic-controller`
+# Krateo Github Plugins for `rest-dynamic-controller`
 
-A specialized web service that addresses some inconsistencies in the GitHub REST API
-It is designed to work with the [`rest-dynamic-controller`](https://github.com/krateoplatformops/rest-dynamic-controller/) and [`github-provider-kog`](https://github.com/krateoplatformops-blueprints/github-provider-kog) (the `/blueprint` folder at the root of this repository).
+This repository contains the source code of a set of plugins.
+
+Specialized web services that addresses some inconsistencies in the GitHub REST API
+They are designed to work with the [`rest-dynamic-controller`](https://github.com/krateoplatformops/rest-dynamic-controller/) and [`github-provider-kog`](https://github.com/krateoplatformops-blueprints/github-provider-kog).
 
 ## Summary
 
@@ -335,7 +337,7 @@ This project is a Go workspace-based monorepo containing multiple, independent p
 
 ### Building with ko
 
-The primary way to build and publish the container images is using Google's `ko` tool. The configuration is in the `.ko.yaml` file in this directory.
+The primary way to build and publish the container images is using Google's `ko` tool. The configuration is in the `.ko.yaml` file in this directory. This is useful for local development.
 
 The `.ko.yaml` file defines a unique image name for each plugin. To build and publish all plugins, simply run:
 
