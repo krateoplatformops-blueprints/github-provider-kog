@@ -43,5 +43,3 @@ func main() {
 
 	srv.Run()
 }
-
-// test
