@@ -59,7 +59,7 @@ jobs:
           echo "Setting dependency github-provider-kog-plugins to version ${PLUGINS_CHART_VERSION}"
 
           # Perform replacements using yq for robustness
-          yq e ".version = \"${NEW_VERSION#v}\"" -i "${CHART_DIR}/Chart.yaml"
+          yq e ".version = \"${NEW_VERSION}\"" -i "${CHART_DIR}/Chart.yaml"
           yq e "(.dependencies[] | select(.name == \"github-provider-kog-plugins\")).version = \"${PLUGINS_CHART_VERSION}\"" -i "${CHART_DIR}/Chart.yaml"
 
           echo "Final Chart.yaml content for this release:"

@@ -75,7 +75,7 @@ jobs:
           echo "Setting dependency github-provider-kog-plugins to version ${PLUGINS_CHART_VERSION}"
 
           # Perform replacements on the Chart.yaml for the linting job
-          yq e ".version = \"${CHART_VERSION#v}\"" -i "${CHART_DIR}/Chart.yaml"
+          yq e ".version = \"${CHART_VERSION}\"" -i "${CHART_DIR}/Chart.yaml"
           yq e "(.dependencies[] | select(.name == \"github-provider-kog-plugins\")).version = \"${PLUGINS_CHART_VERSION}\"" -i "${CHART_DIR}/Chart.yaml"
 
           echo "Final Chart.yaml content for this lint run:"
