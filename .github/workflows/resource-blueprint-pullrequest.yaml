@@ -54,6 +54,27 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v4.1.0
 
+      - name: Resolve Placeholders for Linting
+        run: |
+          CHART_FILE="./${{ matrix.chart }}/Chart.yaml"
+          
+          # Install yq
+          YQ_BIN=/usr/local/bin/yq
+          sudo curl -sSL "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64" -o "${YQ_BIN}"
+          sudo chmod +x "${YQ_BIN}"
+
+          echo "Checking for placeholders in ${CHART_FILE}"
+          # Replace version with a dummy value for linting
+          yq e -i '.version = "0.0.0-lint"' "$CHART_FILE"
+          
+          # If appVersion exists, replace it too
+          if yq e '.appVersion' "$CHART_FILE" &>/dev/null; then
+            yq e -i '.appVersion = "0.0.0-lint"' "$CHART_FILE"
+          fi
+
+          echo "Chart.yaml for linting"
+          cat "$CHART_FILE"
+
       - name: Lint Helm Chart
         run: |
           echo "Linting chart in directory: ./${{ matrix.chart }}"
