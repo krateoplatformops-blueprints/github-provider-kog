@@ -18,6 +18,7 @@ It is designed to work with the [`rest-dynamic-controller`](https://github.com/k
 - [GitHub API Reference](#github-api-reference)
 - [Authentication](#authentication)
 - [Documentation](#documentation)
+- [Testing](#testing)
 - [Build Instructions](#build-instructions)
   - [Building with ko](#building-with-ko)
   - [Building with Docker](#building-with-docker)
@@ -323,6 +324,10 @@ To generate or update the documentation for a specific plugin, run the `swag-ini
 ```
 
 This will generate the necessary `swagger.json`, `swagger.yaml`, and OpenAPI v3 files in the `cmd/collaborator-plugin/docs/` directory.
+
+## Testing guide
+
+For detailed instructions on building and testing the plugins, please refer to the [Testing Guide](./docs/testing.md).
 
 ## Build Instructions
 
