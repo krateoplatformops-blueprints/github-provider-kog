@@ -1,12 +1,16 @@
-name: plugins-release-pullrequest
+name: plugins-source-pullrequest
 
 on:
   pull_request:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
-  test-and-lint-code:
+  test-source-code:
+    name: Test Source Code
     runs-on: ubuntu-latest
     
     # Set the working directory to the plugins root
@@ -27,7 +31,8 @@ jobs:
       - name: Run Go Tests
         run: go test -v -cover $(go work edit -json | jq -r '.Use[].DiskPath' | sed 's|$|/...|' | tr '\n' ' ')
 
-  determine-changes:
+  determine-changes-in-source-code:
+    name: Determine Changes in Source Code
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.determine-matrix.outputs.matrix }}
@@ -67,14 +72,15 @@ jobs:
           echo "Plugins to build: $PLUGINS_TO_BUILD"
           echo "matrix={\"plugin\":${PLUGINS_TO_BUILD}}" >> $GITHUB_OUTPUT
 
-  build-images-on-pr:
+  build-images-and-not-push:
+    name: Build Images and NOT Push
     # Only run if there are plugins to build (changes detected)
-    if: needs.determine-changes.outputs.matrix != '{"plugin":[]}' 
-    needs: [test-and-lint-code, determine-changes]
+    if: needs.determine-changes-in-source-code.outputs.matrix != '{"plugin":[]}' 
+    needs: [test-source-code, determine-changes-in-source-code]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.determine-changes.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.determine-changes-in-source-code.outputs.matrix) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
