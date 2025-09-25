@@ -1,4 +1,4 @@
-name: Main Blueprint PR Validator
+name: main-blueprint-pullrequest
 
 on:
   pull_request:
@@ -7,9 +7,12 @@ on:
 
 jobs:
   lint-main-blueprint:
+    name: Lint main blueprint chart
     runs-on: ubuntu-latest
+    
     permissions:
       contents: read
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4

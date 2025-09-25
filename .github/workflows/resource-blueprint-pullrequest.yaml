@@ -10,9 +10,12 @@ permissions:
 
 jobs:
   determine-changes:
+    name: Determine changed charts
     runs-on: ubuntu-latest
+    
     outputs:
       matrix: ${{ steps.determine-matrix.outputs.matrix }}
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,13 +43,16 @@ jobs:
           echo "matrix={"chart":${CHARTS_TO_LINT}}" >> $GITHUB_OUTPUT
 
   lint-helm-charts:
+    name: Lint changed Helm charts
     # Only run if the matrix from the previous job is not empty
     if: needs.determine-changes.outputs.matrix != '{"chart":[]}'
     needs: determine-changes
     runs-on: ubuntu-latest
+    
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.determine-changes.outputs.matrix) }}
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4

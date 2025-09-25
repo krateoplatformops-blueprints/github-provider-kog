@@ -13,11 +13,10 @@ jobs:
     name: Test Source Code
     runs-on: ubuntu-latest
     
-    # Set the working directory to the plugins root
     defaults:
       run:
         working-directory: ./plugins
-
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -34,8 +33,10 @@ jobs:
   determine-changes-in-source-code:
     name: Determine Changes in Source Code
     runs-on: ubuntu-latest
+    
     outputs:
       matrix: ${{ steps.determine-matrix.outputs.matrix }}
+    
     steps:
       - uses: actions/checkout@v4
 
@@ -78,9 +79,11 @@ jobs:
     if: needs.determine-changes-in-source-code.outputs.matrix != '{"plugin":[]}' 
     needs: [test-source-code, determine-changes-in-source-code]
     runs-on: ubuntu-latest
+    
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.determine-changes-in-source-code.outputs.matrix) }}
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4

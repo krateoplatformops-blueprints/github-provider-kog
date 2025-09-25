@@ -9,28 +9,35 @@ on:
       - '*-plugin/[0-9]+.[0-9]+.[0-9]+*'
 
 jobs:
-  test-and-lint-code:
+  test-source-code:
+    name: Test Source Code
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./plugins
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.24'
           cache-dependency-path: "plugins/go.work.sum"
+      
       - name: Run Go Tests
         run: go test -v ./pkg/... ./cmd/collaborator-plugin/... ./cmd/teamrepo-plugin/...
 
   parse-tag:
-    needs: test-and-lint-code
+    name: Parse Git Tag
+    needs: test-source-code
     runs-on: ubuntu-latest
+    
     outputs:
       plugin: ${{ steps.parse.outputs.plugin }}
       version: ${{ steps.parse.outputs.version }}
+    
     steps:
       - name: Parse Git Tag
         id: parse
@@ -42,11 +49,14 @@ jobs:
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
   build-and-push-image:
+    name: Build and Push Docker Image
     needs: parse-tag
     runs-on: ubuntu-latest
+    
     permissions:
       contents: read
       packages: write
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4

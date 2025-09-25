@@ -11,9 +11,11 @@ on:
 jobs:
   release-chart:
     runs-on: ubuntu-latest
+    
     permissions:
       contents: read
       packages: write # To publish to gh-pages
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -85,8 +87,8 @@ jobs:
           LATEST_PLUGIN_IMAGE_TAG=$(gh release list --repo ${{ github.repository }} --limit 1 --json tagName --jq ".[] | select(.tagName | startswith(\"${PLUGIN_NAME}/\")) | .tagName" | sed "s|${PLUGIN_NAME}/||" | sort -V | tail -n 1)
 
           if [ -z "$LATEST_PLUGIN_IMAGE_TAG" ]; then
-            echo "Could not find a release for ${PLUGIN_NAME}. Defaulting appVersion to the chart version."
-            LATEST_PLUGIN_IMAGE_TAG="${{ steps.parse.outputs.version }}"
+            echo "Could not find a release for ${PLUGIN_NAME}. Aborting tag."
+            exit 1
           else
             echo "Found latest image tag: ${LATEST_PLUGIN_IMAGE_TAG}"
           fi
