@@ -5,11 +5,11 @@ type: application
 version: GITHUB_PROVIDER_KOG_PLUGINS_CHART_VERSION
 
 dependencies:
-  - name: teamrepo-plugin
+  - name: github-provider-kog-teamrepo-plugin
     version: TEAMREPO_PLUGIN_CHART_VERSION
     repository: https://marketplace.krateo.io
     condition: plugins-chart.teamrepo.enabled
-  - name: collaborator-plugin
+  - name: github-provider-kog-collaborator-plugin
     version: COLLABORATOR_PLUGIN_CHART_VERSION
     repository: https://marketplace.krateo.io
     condition: plugins-chart.collaborator.enabled

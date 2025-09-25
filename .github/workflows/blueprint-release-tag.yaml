@@ -48,21 +48,28 @@ jobs:
           PLUGINS_CHART_VERSION=$(helm search repo ${HELM_REPO_NAME}/github-provider-kog-plugins -o json | jq -r '.[0].version')
 
           if [ "$PLUGINS_CHART_VERSION" == "null" ] || [ -z "$PLUGINS_CHART_VERSION" ]; then
-            echo "Error: Could not determine latest version for github-provider-kog-plugins chart."
+            echo "Error: Could not determine latest version for github-provider-kog-plugins chart (umbrella chart)."
             echo "Make sure the github-provider-kog-plugins chart is published before releasing the blueprint."
             exit 1
+          else
+            echo "Latest github-provider-kog-plugins chart version: $PLUGINS_CHART_VERSION"
           fi
 
           echo "Updating chart to version ${NEW_VERSION}"
           echo "Setting dependency github-provider-kog-plugins to version ${PLUGINS_CHART_VERSION}"
 
           # Perform replacements using yq for robustness
-          yq e ".version = \"${NEW_VERSION#v}\"" -i "${CHART_DIR}/Chart.yaml"
+          yq e ".version = \"${NEW_VERSION}\"" -i "${CHART_DIR}/Chart.yaml"
           yq e "(.dependencies[] | select(.name == \"github-provider-kog-plugins\")).version = \"${PLUGINS_CHART_VERSION}\"" -i "${CHART_DIR}/Chart.yaml"
 
           echo "Final Chart.yaml content for this release:"
           cat "${CHART_DIR}/Chart.yaml"
 
+      - name: Helm lint
+        run: |
+          CHART_DIR="./blueprint"
+          helm lint "${CHART_DIR}"
+      
       - name: Publish Helm chart
         uses: stefanprodan/helm-gh-pages@master
         with:

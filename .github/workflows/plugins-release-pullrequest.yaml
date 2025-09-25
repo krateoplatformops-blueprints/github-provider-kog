@@ -27,21 +27,64 @@ jobs:
       - name: Run Go Tests
         run: go test -v -cover $(go work edit -json | jq -r '.Use[].DiskPath' | sed 's|$|/...|' | tr '\n' ' ')
 
-      #- name: Install golangci-lint
-      #  run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.57.2
+  determine-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.determine-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
 
-      #- name: Run golangci-lint
-      #  run: golangci-lint run $(go work edit -json | jq -r '.Use[].DiskPath' | sed 's|$|/...|' | tr '\n' ' ')
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v47
+        with:
+          files: plugins/**
 
-  #lint-plugin-charts:
-  #  runs-on: ubuntu-latest
-  #  steps:
-  #    - name: Checkout
-  #      uses: actions/checkout@v4
-  #
-  #    - name: Set up Helm
-  #      uses: azure/setup-helm@v4.1.0
-  #
-  #    - name: Lint Plugin Helm Charts
-  #      run: |
-  #        find . -name "*plugin-chart" -type d -exec helm lint {} \;
+      - name: Determine which plugins to build
+        id: determine-matrix
+        run: |
+          ALL_PLUGINS=$(ls -d plugins/cmd/*-plugin | xargs -n 1 basename)
+          PLUGINS_TO_BUILD="[]"
+
+          if grep -q "plugins/pkg/" <<< "${{ steps.changed-files.outputs.all_changed_files }}"; then
+            echo "Building all plugins due to pkg folder change."
+            PLUGINS_TO_BUILD=$(echo "$ALL_PLUGINS" | jq -R . | jq -s .)
+          else
+            for plugin in $ALL_PLUGINS; do
+              if grep -q "plugins/cmd/$plugin/" <<< "${{ steps.changed-files.outputs.all_changed_files }}"; then
+                PLUGINS_TO_BUILD=$(echo "$PLUGINS_TO_BUILD" | jq --arg p "$plugin" '. + [$p]')
+                echo "Added $plugin to build list."
+              fi
+            done
+          fi
+
+          echo "Plugins to build: $PLUGINS_TO_BUILD"
+          echo "matrix={\"plugin\":${PLUGINS_TO_BUILD}}" >> $GITHUB_OUTPUT
+
+  build-images-on-pr:
+    # Only run if there are plugins to build (changes detected)
+    if: needs.determine-changes.outputs.matrix != '{"plugin":[]}' 
+    needs: [test-and-lint-code, determine-changes]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.determine-changes.outputs.matrix) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker Images
+        uses: docker/build-push-action@v5
+        with:
+          context: ./plugins
+          file: ./plugins/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: false
+          build-args: |
+            PLUGIN_NAME=${{ matrix.plugin }}
