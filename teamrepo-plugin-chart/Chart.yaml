@@ -1,5 +1,5 @@
 apiVersion: v2
-name: teamrepo-plugin
+name: github-provider-kog-teamrepo-plugin
 description: A Helm chart for deploying the GitHub KOG TeamRepo Plugin.
 type: application
 version: TEAMREPO_PLUGIN_CHART_VERSION

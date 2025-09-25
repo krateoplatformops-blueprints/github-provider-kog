@@ -19,16 +19,14 @@ FROM base AS deps
 # The wildcard ensures this works even if go.work.sum doesn't exist yet.
 COPY go.work* ./
 
-# 2. Copy and download dependencies for the shared 'pkg' module first.
-# This layer is cached as long as pkg's dependencies don't change.
-COPY pkg/go.mod pkg/go.sum ./pkg/
-RUN cd pkg && go mod download
+# 2. Copy all source and module files for the entire workspace.
+# This is necessary because 'go mod download' in a workspace context
+# needs to resolve all modules.
+COPY pkg/ ./pkg/
+COPY cmd/ ./cmd/
 
-# 3. Copy and download dependencies for ONLY the specific plugin being built.
-# This is the key to build isolation. A change in another plugin's go.mod
-# will not invalidate this layer for the current plugin's build.
-COPY cmd/${PLUGIN_NAME}/go.mod cmd/${PLUGIN_NAME}/go.sum ./cmd/${PLUGIN_NAME}/
-RUN cd cmd/${PLUGIN_NAME} && go mod download
+# 3. Download all dependencies for the entire workspace at once.
+RUN go mod download
 
 # --- Builder Stage ---
 # This stage compiles the specific plugin using the pre-downloaded dependencies.
@@ -44,8 +42,8 @@ COPY go.work* ./
 # 3. Copy source code, being specific to minimize cache invalidation.
 # Copy the shared 'pkg' source first, as it's a dependency for all plugins.
 COPY pkg ./pkg
-# Then, copy ONLY the source code for the specific plugin being built.
-COPY cmd/${PLUGIN_NAME} ./cmd/${PLUGIN_NAME}
+# Then, copy the source code for all plugins.
+COPY cmd ./cmd
 
 # 4. Build the target plugin.
 # The command is run from the workspace root to ensure the go.work file is found and used.
