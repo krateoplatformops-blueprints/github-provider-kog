@@ -54,8 +54,8 @@ jobs:
           helm repo update
 
           echo "Fetching latest versions for dependencies..."
-          COLLABORATOR_VERSION=$(helm search repo ${HELM_REPO_NAME}/collaborator-plugin -o json | jq -r '.[0].version')
-          TEAMREPO_VERSION=$(helm search repo ${HELM_REPO_NAME}/teamrepo-plugin -o json | jq -r '.[0].version')
+          COLLABORATOR_VERSION=$(helm search repo ${HELM_REPO_NAME}/github-provider-kog-collaborator-plugin -o json | jq -r '.[0].version')
+          TEAMREPO_VERSION=$(helm search repo ${HELM_REPO_NAME}/github-provider-kog-teamrepo-plugin -o json | jq -r '.[0].version')
 
           if [ -z "$COLLABORATOR_VERSION" ] || [ -z "$TEAMREPO_VERSION" ]; then
             echo "Error: Could not determine latest version for one or more plugin charts."
@@ -65,8 +65,8 @@ jobs:
           echo "Updating umbrella chart to version ${UMBRELLA_VERSION} in-memory..."
           
           yq e ".version = \"${UMBRELLA_VERSION}\"" -i "${CHART_DIR}/Chart.yaml"
-          yq e "(.dependencies[] | select(.name == \"collaborator-plugin\")).version = \"${COLLABORATOR_VERSION}\"" -i "${CHART_DIR}/Chart.yaml"
-          yq e "(.dependencies[] | select(.name == \"teamrepo-plugin\")).version = \"${TEAMREPO_VERSION}\"" -i "${CHART_DIR}/Chart.yaml"
+          yq e "(.dependencies[] | select(.name == \"github-provider-kog-collaborator-plugin\")).version = \"${COLLABORATOR_VERSION}\"" -i "${CHART_DIR}/Chart.yaml"
+          yq e "(.dependencies[] | select(.name == \"github-provider-kog-teamrepo-plugin\")).version = \"${TEAMREPO_VERSION}\"" -i "${CHART_DIR}/Chart.yaml"
 
           echo "Final Chart.yaml content for this release:"
           cat "${CHART_DIR}/Chart.yaml"
