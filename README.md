@@ -1,6 +1,6 @@
-# GitHub Provider KOG Helm Chart
+# GitHub Provider KOG Blueprint
 
-This is a [Helm Chart](https://helm.sh/docs/topics/charts/) that deploys the Krateo GitHub Provider leveraging the [Krateo OASGen Provider](https://github.com/krateoplatformops/oasgen-provider) and using [OpenAPI Specifications (OAS) of the GitHub REST API](https://github.com/github/rest-api-description/blob/main/descriptions/api.github.com/api.github.com.2022-11-28.yaml).
+This is a Blueprint that deploys the GitHub Provider KOG leveraging the [OASGen Provider](https://github.com/krateoplatformops/oasgen-provider) and using [OpenAPI Specifications (OAS) of the GitHub REST API](https://github.com/github/rest-api-description/blob/main/descriptions/api.github.com/api.github.com.2022-11-28.yaml).
 This provider allows you to manage GitHub resources such as repositories, collaborators, teamrepoes, runnergroups and workflows runs in a cloud-native way using the Krateo platform.
 
 ## Summary
@@ -25,16 +25,20 @@ This provider allows you to manage GitHub resources such as repositories, collab
 
 ## Requirements
 
-[Krateo OASGen Provider](https://github.com/krateoplatformops/oasgen-provider) should be installed in your cluster. Follow the related Helm Chart [README](https://github.com/krateoplatformops/oasgen-provider-chart) for installation instructions.
+[OASGen Provider](https://github.com/krateoplatformops/oasgen-provider) should be installed in your cluster. Follow the related Helm Chart [README](https://github.com/krateoplatformops/oasgen-provider-chart) for installation instructions.
+Note that a standard installation of Krateo contains the OASGen Provider.
 
 ## How to install
 
-To install the chart, use the following commands:
+To install the chart, use the following command:
 
 ```sh
-helm repo add krateo https://charts.krateo.io
-helm repo update krateo
-helm install github-provider krateo/github-provider-kog
+helm install github-provider-kog github-provider-kog \
+  --repo https://marketplace.krateo.io \
+  --namespace <release-namespace> \
+  --create-namespace \
+  --version 1.0.0 \
+  --wait
 ```
 
 > [!NOTE]
@@ -347,5 +351,21 @@ They also define the operations that can be performed on those resources. Once t
 
 ## Troubleshooting
 
-For troubleshooting, you can refer to the [Troubleshooting guide](./docs/troubleshooting.md) in the `/docs` folder of this chart. 
+For troubleshooting, you can refer to the [Troubleshooting guide](./blueprint/docs/troubleshooting.md) in the `/docs` folder of the blueprint (chart). 
 It contains common issues and solutions related to this chart.
+
+## CI/CD
+
+This repository contains a monorepo for a Helm chart (the "blueprint") and multiple Go plugins. 
+
+### Workflows
+
+- **Blueprint CI/CD (`blueprint-release-*.yaml`):**
+  - These workflows are responsible for linting, packaging, and publishing the Helm chart.
+  - Pull requests will trigger a linting job.
+  - Pushes to a tag (e.g., `1.2.3`) will trigger a release to the Helm repository.
+
+- **Plugins CI/CD (`plugin-release-*.yaml`):**
+  - These workflows handle the building, testing, and releasing of Go plugins.
+  - Pull requests will trigger build and test jobs.
+  - Pushes to a tag (e.g., `1.2.3`) will trigger a release to the GitHub Container Registry.

@@ -1,0 +1,15 @@
+apiVersion: v2
+name: github-provider-kog-plugins
+description: An umbrella chart for the GitHub Provider KOG plugins
+type: application
+version: GITHUB_PROVIDER_KOG_PLUGINS_CHART_VERSION
+
+dependencies:
+  - name: teamrepo-plugin
+    version: TEAMREPO_PLUGIN_CHART_VERSION
+    repository: https://marketplace.krateo.io
+    condition: plugins-chart.teamrepo.enabled
+  - name: collaborator-plugin
+    version: COLLABORATOR_PLUGIN_CHART_VERSION
+    repository: https://marketplace.krateo.io
+    condition: plugins-chart.collaborator.enabled

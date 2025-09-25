@@ -1,0 +1,726 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "GitHub TeamRepo Plugin API for Krateo Operator Generator (KOG)",
+    "description": "Simple wrapper around GitHub API to provide consisentency of API response for Krateo Operator Generator (KOG)",
+    "termsOfService": "http://swagger.io/terms/",
+    "contact": {
+      "name": "Krateo Support",
+      "url": "https://krateo.io",
+      "email": "contact@krateoplatformops.io"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/"
+    }
+  ],
+  "paths": {
+    "/repository/{owner}/{repo}/collaborators/{username}": {
+      "post": {
+        "summary": "Add a repository collaborator",
+        "description": "Add a repository collaborator or invite a user to collaborate on a repository",
+        "operationId": "post-repo-collaborator",
+        "parameters": [
+          {
+            "name": "owner",
+            "in": "path",
+            "description": "Owner of the repository",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "in": "path",
+            "description": "Name of the repository",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "username",
+            "in": "path",
+            "description": "Username of the collaborator to add",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Permission to grant to the collaborator",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/collaborator.Permission"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Invitation sent to user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/collaborator.Message"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "User already collaborator",
+            "content": {}
+          }
+        },
+        "x-codegen-request-body-name": "permission"
+      },
+      "delete": {
+        "summary": "Delete repository collaborator or cancel invitation",
+        "description": "Remove a collaborator from repository or cancel a pending invitation",
+        "operationId": "delete-repo-collaborator",
+        "parameters": [
+          {
+            "name": "owner",
+            "in": "path",
+            "description": "Owner of the repository",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "in": "path",
+            "description": "Name of the repository",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "username",
+            "in": "path",
+            "description": "Username of the collaborator to remove",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Collaborator removed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/collaborator.Message"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Invitation cancelled successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/collaborator.Message"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found as collaborator or invitee",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/collaborator.Message"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update repository collaborator permission or invitation",
+        "description": "Update the permission of an existing collaborator or pending invitation",
+        "operationId": "patch-repo-collaborator",
+        "parameters": [
+          {
+            "name": "owner",
+            "in": "path",
+            "description": "Owner of the repository",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "in": "path",
+            "description": "Name of the repository",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "username",
+            "in": "path",
+            "description": "Username of the collaborator",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "New permission to set (`pull`, `push`, `admin`, `maintain`, `triage`)",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/collaborator.Permission"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Permission updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/collaborator.Message"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Invitation permission updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/collaborator.Message"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "permissions"
+      }
+    },
+    "/repository/{owner}/{repo}/collaborators/{username}/permission": {
+      "get": {
+        "summary": "Get the permission of a user in a repository",
+        "description": "Get the permission of a user in a repository",
+        "operationId": "get-repo-permission",
+        "parameters": [
+          {
+            "name": "owner",
+            "in": "path",
+            "description": "Owner of the repository",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "in": "path",
+            "description": "Name of the repository",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "username",
+            "in": "path",
+            "description": "Username of the collaborator",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/collaborator.RepoPermissions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/teamrepository/orgs/{org}/teams/{team_slug}/repos/{owner}/{repo}": {
+      "get": {
+        "summary": "Get the permission of a team in a repository",
+        "description": "Get the permission of a team in a repository",
+        "operationId": "get-team-repo-permission",
+        "parameters": [
+          {
+            "name": "org",
+            "in": "path",
+            "description": "Organization of the repository",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "team_slug",
+            "in": "path",
+            "description": "Slug of the team",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "owner",
+            "in": "path",
+            "description": "Owner of the repository",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "in": "path",
+            "description": "Name of the repository",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/cmd_teamrepo-plugin_handlers.TeamRepoPermissions"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "cmd_teamrepo-plugin_handlers.TeamRepoPermissions": {
+        "type": "object",
+        "properties": {
+          "allow_auto_merge": {
+            "type": "boolean"
+          },
+          "allow_forking": {
+            "type": "boolean"
+          },
+          "allow_merge_commit": {
+            "type": "boolean"
+          },
+          "allow_rebase_merge": {
+            "type": "boolean"
+          },
+          "allow_squash_merge": {
+            "type": "boolean"
+          },
+          "archive_url": {
+            "type": "string"
+          },
+          "archived": {
+            "type": "boolean"
+          },
+          "assignees_url": {
+            "type": "string"
+          },
+          "blobs_url": {
+            "type": "string"
+          },
+          "branches_url": {
+            "type": "string"
+          },
+          "clone_url": {
+            "type": "string"
+          },
+          "collaborators_url": {
+            "type": "string"
+          },
+          "comments_url": {
+            "type": "string"
+          },
+          "commits_url": {
+            "type": "string"
+          },
+          "compare_url": {
+            "type": "string"
+          },
+          "contents_url": {
+            "type": "string"
+          },
+          "contributors_url": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "default_branch": {
+            "type": "string"
+          },
+          "delete_branch_on_merge": {
+            "type": "boolean"
+          },
+          "deployments_url": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "disabled": {
+            "type": "boolean"
+          },
+          "downloads_url": {
+            "type": "string"
+          },
+          "events_url": {
+            "type": "string"
+          },
+          "fork": {
+            "type": "boolean"
+          },
+          "forks": {
+            "type": "integer"
+          },
+          "forks_count": {
+            "type": "integer"
+          },
+          "forks_url": {
+            "type": "string"
+          },
+          "full_name": {
+            "type": "string"
+          },
+          "git_commits_url": {
+            "type": "string"
+          },
+          "git_refs_url": {
+            "type": "string"
+          },
+          "git_tags_url": {
+            "type": "string"
+          },
+          "git_url": {
+            "type": "string"
+          },
+          "has_downloads": {
+            "type": "boolean"
+          },
+          "has_issues": {
+            "type": "boolean"
+          },
+          "has_pages": {
+            "type": "boolean"
+          },
+          "has_projects": {
+            "type": "boolean"
+          },
+          "has_wiki": {
+            "type": "boolean"
+          },
+          "homepage": {
+            "type": "string"
+          },
+          "hooks_url": {
+            "type": "string"
+          },
+          "html_url": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "issue_comment_url": {
+            "type": "string"
+          },
+          "issue_events_url": {
+            "type": "string"
+          },
+          "issues_url": {
+            "type": "string"
+          },
+          "keys_url": {
+            "type": "string"
+          },
+          "labels_url": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "languages_url": {
+            "type": "string"
+          },
+          "license": {
+            "type": "string"
+          },
+          "merges_url": {
+            "type": "string"
+          },
+          "milestones_url": {
+            "type": "string"
+          },
+          "mirror_url": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "node_id": {
+            "type": "string"
+          },
+          "notifications_url": {
+            "type": "string"
+          },
+          "open_issues": {
+            "type": "integer"
+          },
+          "open_issues_count": {
+            "type": "integer"
+          },
+          "owner": {
+            "type": "string",
+            "description": "Added"
+          },
+          "permission": {
+            "type": "string",
+            "description": "Added"
+          },
+          "private": {
+            "type": "boolean"
+          },
+          "pulls_url": {
+            "type": "string"
+          },
+          "pushed_at": {
+            "type": "string"
+          },
+          "releases_url": {
+            "type": "string"
+          },
+          "role_name": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer"
+          },
+          "ssh_url": {
+            "type": "string"
+          },
+          "stargazers_count": {
+            "type": "integer"
+          },
+          "stargazers_url": {
+            "type": "string"
+          },
+          "statuses_url": {
+            "type": "string"
+          },
+          "subscribers_url": {
+            "type": "string"
+          },
+          "subscription_url": {
+            "type": "string"
+          },
+          "svn_url": {
+            "type": "string"
+          },
+          "tags_url": {
+            "type": "string"
+          },
+          "teams_url": {
+            "type": "string"
+          },
+          "temp_clone_token": {
+            "type": "string"
+          },
+          "topics": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "trees_url": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "visibility": {
+            "type": "string"
+          },
+          "watchers": {
+            "type": "integer"
+          },
+          "watchers_count": {
+            "type": "integer"
+          }
+        }
+      },
+      "collaborator.Message": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "collaborator.Permission": {
+        "type": "object",
+        "properties": {
+          "permission": {
+            "type": "string"
+          }
+        }
+      },
+      "collaborator.Permissions": {
+        "type": "object",
+        "properties": {
+          "admin": {
+            "type": "boolean"
+          },
+          "maintain": {
+            "type": "boolean"
+          },
+          "pull": {
+            "type": "boolean"
+          },
+          "push": {
+            "type": "boolean"
+          },
+          "triage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "collaborator.RepoPermissions": {
+        "type": "object",
+        "properties": {
+          "html_url": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer",
+            "description": "user ID"
+          },
+          "message": {
+            "type": "string"
+          },
+          "permission": {
+            "type": "string"
+          },
+          "permissions": {
+            "$ref": "#/components/schemas/collaborator.Permissions"
+          },
+          "role_name": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/collaborator.User"
+          }
+        }
+      },
+      "collaborator.User": {
+        "type": "object",
+        "properties": {
+          "avatar_url": {
+            "type": "string"
+          },
+          "events_url": {
+            "type": "string"
+          },
+          "followers_url": {
+            "type": "string"
+          },
+          "following_url": {
+            "type": "string"
+          },
+          "gists_url": {
+            "type": "string"
+          },
+          "gravatar_id": {
+            "type": "string"
+          },
+          "html_url": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "login": {
+            "type": "string"
+          },
+          "node_id": {
+            "type": "string"
+          },
+          "organizations_url": {
+            "type": "string"
+          },
+          "permissions": {
+            "$ref": "#/components/schemas/collaborator.Permissions"
+          },
+          "received_events_url": {
+            "type": "string"
+          },
+          "repos_url": {
+            "type": "string"
+          },
+          "role_name": {
+            "type": "string"
+          },
+          "site_admin": {
+            "type": "boolean"
+          },
+          "starred_url": {
+            "type": "string"
+          },
+          "subscriptions_url": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "user_view_type": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "x-original-swagger-version": "2.0"
+}

@@ -1,0 +1,22 @@
+# .ko.yaml in plugins/
+# This file defines the container image builds for all plugins in the workspace.
+# It's used by the 'ko' tool to build and publish the images.
+
+defaultBaseImage: golang:1.24-alpine
+
+builds:
+- id: collaborator-plugin
+  dir: ./cmd/collaborator-plugin
+  main: .
+  ldflags:
+  - -s -w
+  env:
+  - CGO_ENABLED=0
+
+- id: teamrepo-plugin
+  dir: ./cmd/teamrepo-plugin
+  main: .
+  ldflags:
+  - -s -w
+  env:
+  - CGO_ENABLED=0

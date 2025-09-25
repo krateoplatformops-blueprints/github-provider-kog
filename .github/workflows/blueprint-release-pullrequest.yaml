@@ -1,0 +1,85 @@
+name: blueprint-release-pullrequest
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Authenticate with GitHub App
+        id: authenticate
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4.1.0
+
+      - name: Extract latest Chart Version
+        id: chart_version
+        uses: tdemin/find-latest-tag@v1
+        continue-on-error: true
+        with:
+          repo: https://${{ steps.authenticate.outputs.token }}@github.com/${{ github.repository }}.git
+
+      - name: Set CHART_VERSION (fallback if no tag)
+        id: set_version
+        run: |
+          if [ -z "${{ steps.chart_version.outputs.tag }}" ]; then
+            echo "No tag found, using default 1.0.0"
+            echo "tag=1.0.0" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${{ steps.chart_version.outputs.tag }}" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Ensure yq is installed
+        run: |
+          if ! command -v yq >/dev/null; then
+            echo "Installing yq..."
+            # Mike Farah yq (Linux amd64); adjust for arm if needed
+            YQ_BIN=/usr/local/bin/yq
+            sudo curl -sSL "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64" -o "${YQ_BIN}"
+            sudo chmod +x "${YQ_BIN}"
+          fi
+          echo "yq version: $(yq --version)"
+
+      - name: Resolve and Replace Chart Versions
+        run: |
+          CHART_DIR="./blueprint"
+          CHART_VERSION="${{ steps.set_version.outputs.tag }}"
+          HELM_REPO_URL="https://marketplace.krateo.io"
+          HELM_REPO_NAME="krateo-marketplace"
+
+          echo "Setting up Helm repository..."
+          helm repo add ${HELM_REPO_NAME} ${HELM_REPO_URL}
+          helm repo update
+
+          echo "Fetching latest version for dependency chart..."
+          PLUGINS_CHART_VERSION=$(helm search repo ${HELM_REPO_NAME}/github-provider-kog-plugins -o json | jq -r '.[0].version')
+
+          # Fallback logic for the dependency chart
+          if [ "$PLUGINS_CHART_VERSION" == "null" ] || [ -z "$PLUGINS_CHART_VERSION" ]; then
+            echo "Warning: Could not find published github-provider-kog-plugins chart. Using fallback version 1.0.0 for linting."
+            PLUGINS_CHART_VERSION="1.0.0"
+          fi
+
+          echo "Updating chart to version ${CHART_VERSION} for linting"
+          echo "Setting dependency github-provider-kog-plugins to version ${PLUGINS_CHART_VERSION}"
+
+          # Perform replacements on the Chart.yaml for the linting job
+          yq e ".version = \"${CHART_VERSION#v}\"" -i "${CHART_DIR}/Chart.yaml"
+          yq e "(.dependencies[] | select(.name == \"github-provider-kog-plugins\")).version = \"${PLUGINS_CHART_VERSION}\"" -i "${CHART_DIR}/Chart.yaml"
+
+          echo "Final Chart.yaml content for this lint run:"
+          cat "${CHART_DIR}/Chart.yaml"
+
+      - name: Helm lint
+        run: helm lint ./blueprint

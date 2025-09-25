@@ -1,0 +1,15 @@
+apiVersion: github.ogen.krateo.io/v1alpha1
+kind: Collaborator
+metadata:
+  name: test-collaborator
+  namespace: default
+  annotations:
+    krateo.io/connector-verbose: "true"
+spec:
+  configurationRef:
+    name: my-collaborator-config
+    namespace: default
+  owner: krateoplatformops-test
+  repo: collaborator-tester
+  username: leonardo-vicentini
+  permission: push

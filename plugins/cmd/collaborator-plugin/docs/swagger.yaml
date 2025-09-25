@@ -1,0 +1,454 @@
+basePath: /
+definitions:
+  cmd_collaborator-plugin_handlers.Message:
+    properties:
+      message:
+        type: string
+    type: object
+  cmd_collaborator-plugin_handlers.Permission:
+    properties:
+      permission:
+        type: string
+    type: object
+  cmd_collaborator-plugin_handlers.Permissions:
+    properties:
+      admin:
+        type: boolean
+      maintain:
+        type: boolean
+      pull:
+        type: boolean
+      push:
+        type: boolean
+      triage:
+        type: boolean
+    type: object
+  cmd_collaborator-plugin_handlers.RepoPermissions:
+    properties:
+      html_url:
+        type: string
+      id:
+        description: user ID
+        type: integer
+      message:
+        type: string
+      permission:
+        type: string
+      permissions:
+        $ref: '#/definitions/cmd_collaborator-plugin_handlers.Permissions'
+      role_name:
+        type: string
+      user:
+        $ref: '#/definitions/cmd_collaborator-plugin_handlers.User'
+    type: object
+  cmd_collaborator-plugin_handlers.User:
+    properties:
+      avatar_url:
+        type: string
+      events_url:
+        type: string
+      followers_url:
+        type: string
+      following_url:
+        type: string
+      gists_url:
+        type: string
+      gravatar_id:
+        type: string
+      html_url:
+        type: string
+      id:
+        type: integer
+      login:
+        type: string
+      node_id:
+        type: string
+      organizations_url:
+        type: string
+      permissions:
+        $ref: '#/definitions/cmd_collaborator-plugin_handlers.Permissions'
+      received_events_url:
+        type: string
+      repos_url:
+        type: string
+      role_name:
+        type: string
+      site_admin:
+        type: boolean
+      starred_url:
+        type: string
+      subscriptions_url:
+        type: string
+      type:
+        type: string
+      url:
+        type: string
+      user_view_type:
+        type: string
+    type: object
+  teamrepo.TeamRepoPermissions:
+    properties:
+      allow_auto_merge:
+        type: boolean
+      allow_forking:
+        type: boolean
+      allow_merge_commit:
+        type: boolean
+      allow_rebase_merge:
+        type: boolean
+      allow_squash_merge:
+        type: boolean
+      archive_url:
+        type: string
+      archived:
+        type: boolean
+      assignees_url:
+        type: string
+      blobs_url:
+        type: string
+      branches_url:
+        type: string
+      clone_url:
+        type: string
+      collaborators_url:
+        type: string
+      comments_url:
+        type: string
+      commits_url:
+        type: string
+      compare_url:
+        type: string
+      contents_url:
+        type: string
+      contributors_url:
+        type: string
+      created_at:
+        type: string
+      default_branch:
+        type: string
+      delete_branch_on_merge:
+        type: boolean
+      deployments_url:
+        type: string
+      description:
+        type: string
+      disabled:
+        type: boolean
+      downloads_url:
+        type: string
+      events_url:
+        type: string
+      fork:
+        type: boolean
+      forks:
+        type: integer
+      forks_count:
+        type: integer
+      forks_url:
+        type: string
+      full_name:
+        type: string
+      git_commits_url:
+        type: string
+      git_refs_url:
+        type: string
+      git_tags_url:
+        type: string
+      git_url:
+        type: string
+      has_downloads:
+        type: boolean
+      has_issues:
+        type: boolean
+      has_pages:
+        type: boolean
+      has_projects:
+        type: boolean
+      has_wiki:
+        type: boolean
+      homepage:
+        type: string
+      hooks_url:
+        type: string
+      html_url:
+        type: string
+      id:
+        type: integer
+      issue_comment_url:
+        type: string
+      issue_events_url:
+        type: string
+      issues_url:
+        type: string
+      keys_url:
+        type: string
+      labels_url:
+        type: string
+      language:
+        type: string
+      languages_url:
+        type: string
+      license:
+        type: string
+      merges_url:
+        type: string
+      milestones_url:
+        type: string
+      mirror_url:
+        type: string
+      name:
+        type: string
+      node_id:
+        type: string
+      notifications_url:
+        type: string
+      open_issues:
+        type: integer
+      open_issues_count:
+        type: integer
+      owner:
+        description: Added
+        type: string
+      permission:
+        description: Added
+        type: string
+      private:
+        type: boolean
+      pulls_url:
+        type: string
+      pushed_at:
+        type: string
+      releases_url:
+        type: string
+      role_name:
+        type: string
+      size:
+        type: integer
+      ssh_url:
+        type: string
+      stargazers_count:
+        type: integer
+      stargazers_url:
+        type: string
+      statuses_url:
+        type: string
+      subscribers_url:
+        type: string
+      subscription_url:
+        type: string
+      svn_url:
+        type: string
+      tags_url:
+        type: string
+      teams_url:
+        type: string
+      temp_clone_token:
+        type: string
+      topics:
+        items:
+          type: string
+        type: array
+      trees_url:
+        type: string
+      updated_at:
+        type: string
+      url:
+        type: string
+      visibility:
+        type: string
+      watchers:
+        type: integer
+      watchers_count:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: contact@krateoplatformops.io
+    name: Krateo Support
+    url: https://krateo.io
+  description: A service for managing GitHub repository collaborators and invitations.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: GitHub Collaborator Plugin API
+  version: "1.0"
+paths:
+  /repository/{owner}/{repo}/collaborators/{username}:
+    delete:
+      description: Remove a collaborator from repository or cancel a pending invitation
+      operationId: delete-repo-collaborator
+      parameters:
+      - description: Owner of the repository
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: Name of the repository
+        in: path
+        name: repo
+        required: true
+        type: string
+      - description: Username of the collaborator to remove
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Collaborator removed successfully
+          schema:
+            $ref: '#/definitions/cmd_collaborator-plugin_handlers.Message'
+        "202":
+          description: Invitation cancelled successfully
+          schema:
+            $ref: '#/definitions/cmd_collaborator-plugin_handlers.Message'
+        "404":
+          description: User not found as collaborator or invitee
+          schema:
+            $ref: '#/definitions/cmd_collaborator-plugin_handlers.Message'
+      summary: Delete repository collaborator or cancel invitation
+    patch:
+      consumes:
+      - application/json
+      description: Update the permission of an existing collaborator or pending invitation
+      operationId: patch-repo-collaborator
+      parameters:
+      - description: Owner of the repository
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: Name of the repository
+        in: path
+        name: repo
+        required: true
+        type: string
+      - description: Username of the collaborator
+        in: path
+        name: username
+        required: true
+        type: string
+      - description: New permission to set (`pull`, `push`, `admin`, `maintain`, `triage`)
+        in: body
+        name: permissions
+        required: true
+        schema:
+          $ref: '#/definitions/cmd_collaborator-plugin_handlers.Permission'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Permission updated successfully
+          schema:
+            $ref: '#/definitions/cmd_collaborator-plugin_handlers.Message'
+        "202":
+          description: Invitation permission updated
+          schema:
+            $ref: '#/definitions/cmd_collaborator-plugin_handlers.Message'
+      summary: Update repository collaborator permission or invitation
+    post:
+      consumes:
+      - application/json
+      description: Add a repository collaborator or invite a user to collaborate on
+        a repository
+      operationId: post-repo-collaborator
+      parameters:
+      - description: Owner of the repository
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: Name of the repository
+        in: path
+        name: repo
+        required: true
+        type: string
+      - description: Username of the collaborator to add
+        in: path
+        name: username
+        required: true
+        type: string
+      - description: Permission to grant to the collaborator
+        in: body
+        name: permission
+        required: true
+        schema:
+          $ref: '#/definitions/cmd_collaborator-plugin_handlers.Permission'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Invitation sent to user
+          schema:
+            $ref: '#/definitions/cmd_collaborator-plugin_handlers.Message'
+        "204":
+          description: User already collaborator
+      summary: Add a repository collaborator
+  /repository/{owner}/{repo}/collaborators/{username}/permission:
+    get:
+      description: Get the permission of a user in a repository
+      operationId: get-repo-permission
+      parameters:
+      - description: Owner of the repository
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: Name of the repository
+        in: path
+        name: repo
+        required: true
+        type: string
+      - description: Username of the collaborator
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/cmd_collaborator-plugin_handlers.RepoPermissions'
+      summary: Get the permission of a user in a repository
+  /teamrepository/orgs/{org}/teams/{team_slug}/repos/{owner}/{repo}:
+    get:
+      description: Get the permission of a team in a repository
+      operationId: get-team-repo-permission
+      parameters:
+      - description: Organization of the repository
+        in: path
+        name: org
+        required: true
+        type: string
+      - description: Slug of the team
+        in: path
+        name: team_slug
+        required: true
+        type: string
+      - description: Owner of the repository
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: Name of the repository
+        in: path
+        name: repo
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/teamrepo.TeamRepoPermissions'
+      summary: Get the permission of a team in a repository
+schemes:
+- http
+swagger: "2.0"

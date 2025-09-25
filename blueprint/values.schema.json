@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "properties": {
+    "restdefinitions": {
+      "additionalProperties": false,
+      "description": "RestDefinition configuration for various GitHub resources",
+      "properties": {
+        "collaborator": {
+          "additionalProperties": false,
+          "description": "Collaborator RestDefinition configuration",
+          "properties": {
+            "enabled": {
+              "default": true,
+              "description": "Enable collaborator RestDefinition",
+              "title": "enabled",
+              "type": "boolean"
+            }
+          },
+          "title": "collaborator",
+          "type": "object"
+        },
+        "repo": {
+          "additionalProperties": false,
+          "description": "Repository RestDefinition configuration",
+          "properties": {
+            "enabled": {
+              "default": true,
+              "description": "Enable repository RestDefinition",
+              "title": "enabled",
+              "type": "boolean"
+            }
+          },
+          "title": "repo",
+          "type": "object"
+        },
+        "runnergroup": {
+          "additionalProperties": false,
+          "description": "Runner group RestDefinition configuration",
+          "properties": {
+            "enabled": {
+              "default": true,
+              "description": "Enable runner group RestDefinition",
+              "title": "enabled",
+              "type": "boolean"
+            }
+          },
+          "title": "runnergroup",
+          "type": "object"
+        },
+        "teamrepo": {
+          "additionalProperties": false,
+          "description": "Team repository RestDefinition configuration",
+          "properties": {
+            "enabled": {
+              "default": true,
+              "description": "Enable team repository RestDefinition",
+              "title": "enabled",
+              "type": "boolean"
+            }
+          },
+          "title": "teamrepo",
+          "type": "object"
+        },
+        "workflow": {
+          "additionalProperties": false,
+          "description": "Workflow RestDefinition configuration",
+          "properties": {
+            "enabled": {
+              "default": true,
+              "description": "Enable workflow RestDefinition",
+              "title": "enabled",
+              "type": "boolean"
+            }
+          },
+          "title": "workflow",
+          "type": "object"
+        }
+      },
+      "title": "restdefinitions",
+      "type": "object"
+    }
+  },
+  "type": "object"
+}

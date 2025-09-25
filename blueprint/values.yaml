@@ -1,0 +1,64 @@
+# @schema
+# type: object
+# description: RestDefinition configuration for various GitHub resources
+# @schema
+restdefinitions:
+  # @schema
+  # type: object
+  # description: Collaborator RestDefinition configuration
+  # @schema
+  collaborator:
+    # @schema
+    # type: boolean
+    # description: Enable collaborator RestDefinition
+    # default: true
+    # @schema
+    enabled: true
+  
+  # @schema
+  # type: object
+  # description: Repository RestDefinition configuration
+  # @schema
+  repo:
+    # @schema
+    # type: boolean
+    # description: Enable repository RestDefinition
+    # default: true
+    # @schema
+    enabled: true
+  
+  # @schema
+  # type: object
+  # description: Team repository RestDefinition configuration
+  # @schema
+  teamrepo:
+    # @schema
+    # type: boolean
+    # description: Enable team repository RestDefinition
+    # default: true
+    # @schema
+    enabled: true
+  
+  # @schema
+  # type: object
+  # description: Workflow RestDefinition configuration
+  # @schema
+  workflow:
+    # @schema
+    # type: boolean
+    # description: Enable workflow RestDefinition
+    # default: true
+    # @schema
+    enabled: true
+  
+  # @schema
+  # type: object
+  # description: Runner group RestDefinition configuration
+  # @schema
+  runnergroup:
+    # @schema
+    # type: boolean
+    # description: Enable runner group RestDefinition
+    # default: true
+    # @schema
+    enabled: true
