@@ -58,6 +58,7 @@ jobs:
             done
           fi
 
+          echo "Plugins to build: $PLUGINS_TO_BUILD"
           echo "matrix={\"plugin\":${PLUGINS_TO_BUILD}}" >> $GITHUB_OUTPUT
 
   build-images-on-pr:
