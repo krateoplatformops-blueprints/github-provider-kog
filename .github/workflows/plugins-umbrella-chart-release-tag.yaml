@@ -60,11 +60,15 @@ jobs:
           if [ -z "$COLLABORATOR_PLUGIN_VERSION" ]; then
             echo "Error: Could not determine latest version of github-provider-kog-collaborator-plugin" >&2
             exit 1
+          else
+            echo "Latest github-provider-kog-collaborator-plugin version: $COLLABORATOR_PLUGIN_VERSION"
           fi
 
           if [ -z "$TEAMREPO_PLUGIN_VERSION" ]; then
             echo "Error: Could not determine latest version of github-provider-kog-teamrepo-plugin" >&2
             exit 1
+          else
+            echo "Latest github-provider-kog-teamrepo-plugin version: $TEAMREPO_PLUGIN_VERSION"
           fi
           
           echo "Updating umbrella chart to version ${UMBRELLA_VERSION} in-memory..."
