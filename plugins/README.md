@@ -362,3 +362,4 @@ docker build --build-arg PLUGIN_NAME=teamrepo-plugin -t teamrepo-plugin:latest .
 
 This command should be run from this `plugins` directory, as it sets the necessary build context to access the shared `pkg` directory.
 Note that the `PLUGIN_NAME` argument must match the name of the subdirectory containing the `main.go` file for the desired plugin therefore it is case-sensitive and must be exact.
+
