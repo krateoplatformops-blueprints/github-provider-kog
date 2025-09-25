@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/krateoplatformops/github-provider-kog/pkg/types"
 	"github.com/krateoplatformops/github-provider-kog/pkg/utils"
 )
 
@@ -107,9 +106,9 @@ func AddFieldToResponse(body []byte, fieldName string, fieldValue interface{}) (
 
 // GitHubInvitation represents a GitHub repository invitation
 type GitHubInvitation struct {
-	ID         int64            `json:"id"`
-	NodeID     string           `json:"node_id"`
-	Repository types.Repository `json:"repository"`
+	ID         int64      `json:"id"`
+	NodeID     string     `json:"node_id"`
+	Repository Repository `json:"repository"`
 	Invitee    struct {
 		Login     string `json:"login"`
 		ID        int64  `json:"id"`

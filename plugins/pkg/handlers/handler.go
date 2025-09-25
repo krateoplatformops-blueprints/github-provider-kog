@@ -25,5 +25,3 @@ type HandlerOptions struct {
 type Handler interface {
 	ServeHTTP(w http.ResponseWriter, r *http.Request)
 }
-
-//test

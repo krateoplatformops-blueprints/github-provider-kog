@@ -14,7 +14,7 @@ To ensure the Go toolchain can see and use the `go.work` file, **all `go` comman
 
 ```sh
 # All commands should be run from this location:
-/path/to/project/plugins/
+/github-provider-kog/plugins/
 ```
 
 Running commands from within a subdirectory (e.g., `plugins/cmd/collaborator-plugin/`) will fail, as the Go toolchain will not have the workspace context and will be unable to find the local `pkg` module.
