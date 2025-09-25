@@ -1,4 +1,3 @@
-{{- if .Values.restdefinitions.teamrepo.enabled }}
 kind: RestDefinition
 apiVersion: ogen.krateo.io/v1alpha1
 metadata:
@@ -26,4 +25,3 @@ spec:
     - action: update
       method: PUT
       path: /orgs/{org}/teams/{team_slug}/repos/{owner}/{repo}
-{{ end }}

@@ -1,4 +1,3 @@
-{{- if .Values.restdefinitions.runnergroup.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -6,4 +5,4 @@ metadata:
 data:
   runnergroup.yaml: |
 {{ tpl (.Files.Get "assets/runnergroup.yaml") . | indent 4 }}
-{{ end }}
+

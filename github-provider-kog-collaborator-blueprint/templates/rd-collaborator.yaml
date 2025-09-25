@@ -1,4 +1,3 @@
-{{- if .Values.restdefinitions.collaborator.enabled }}
 kind: RestDefinition
 apiVersion: ogen.krateo.io/v1alpha1
 metadata:
@@ -26,4 +25,3 @@ spec:
     - action: update
       method: PATCH
       path: /repository/{owner}/{repo}/collaborators/{username}            # plugin endpoint
-{{ end }}

@@ -1,4 +1,3 @@
-{{- if .Values.restdefinitions.repo.enabled }}
 kind: RestDefinition
 apiVersion: ogen.krateo.io/v1alpha1
 metadata:
@@ -25,4 +24,3 @@ spec:
     - action: update
       method: PATCH
       path: /repos/{org}/{name}
-{{ end }}

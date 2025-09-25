@@ -47,7 +47,9 @@ jobs:
               echo "Found latest version: $latest_version"
               yq e -i "(.dependencies[] | select(.name == \"${dep_name}\")).version = \"${latest_version}\"" "$CHART_FILE"
             else
-              echo "Warning: Could not find latest version for ${dep_name}. Linting with placeholder."
+              echo "Warning: Could not find latest version for ${dep_name}. Linting with a placeholder version."
+              yq e -i "(.dependencies[] | select(.name == \"${dep_name}\")).version = \"0.0.0-lint\"" "$CHART_FILE"
+              # Not failing for a pull request
             fi
           done
 
