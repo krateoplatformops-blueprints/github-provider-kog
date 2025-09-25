@@ -4,9 +4,9 @@ on:
   push:
     tags:
       # This workflow triggers on tags prefixed with a plugin name, e.g.,
-      # collaborator-plugin/v1.0.3
-      # teamrepo-plugin/v2.8.1
-      - '*/*'
+      # collaborator-plugin/1.0.3
+      # teamrepo-plugin/2.8.1
+      - '*-plugin/*'  # wildcard for any plugin name
 
 jobs:
   # Job 1: Parse the Git tag to get the plugin name and version.
@@ -24,6 +24,13 @@ jobs:
           VERSION="${TAG##*/}"  # after last slash
           echo "plugin=${PLUGIN}" >> $GITHUB_OUTPUT
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          if [[ "$PLUGIN" == *-plugin ]]; then
+            echo "Plugin name: $PLUGIN"
+          else
+            echo "Invalid plugin name format: $PLUGIN"
+            echo "Expected format: <name>-plugin (e.g., collaborator-plugin)"
+            exit 1
+          fi
           if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "Invalid version format: $VERSION"
             echo "Expected format: X.Y.Z (e.g., 1.0.3)"
