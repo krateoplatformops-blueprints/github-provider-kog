@@ -4,3 +4,12 @@ description: A Helm chart for deploying the GitHub KOG TeamRepo.
 type: application
 version: TEAMREPO_CHART_VERSION
 appVersion: TEAMREPO_APP_VERSION
+
+home: https://krateo.io
+icon: "https://github.com/krateoplatformops/krateo/blob/main/docs/media/logo.svg"
+keywords:
+  - generator
+sources:
+  - https://github.com/krateoplatformops-blueprints/github-provider-kog-teamrepo
+annotations:
+  krateoSupportedVersion: ">= 2.5.1"

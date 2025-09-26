@@ -1,83 +1,75 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "additionalProperties": false,
+  "additionalProperties": true,
   "properties": {
-    "restdefinitions": {
+    "github-provider-kog-collaborator-blueprint": {
       "additionalProperties": false,
-      "description": "RestDefinition configuration for various GitHub resources",
+      "description": "Configuration for the Collaborator Blueprint dependency.",
       "properties": {
-        "collaborator": {
-          "additionalProperties": false,
-          "description": "Collaborator RestDefinition configuration",
-          "properties": {
-            "enabled": {
-              "default": true,
-              "description": "Enable collaborator RestDefinition",
-              "title": "enabled",
-              "type": "boolean"
-            }
-          },
-          "title": "collaborator",
-          "type": "object"
-        },
-        "repo": {
-          "additionalProperties": false,
-          "description": "Repository RestDefinition configuration",
-          "properties": {
-            "enabled": {
-              "default": true,
-              "description": "Enable repository RestDefinition",
-              "title": "enabled",
-              "type": "boolean"
-            }
-          },
-          "title": "repo",
-          "type": "object"
-        },
-        "runnergroup": {
-          "additionalProperties": false,
-          "description": "Runner group RestDefinition configuration",
-          "properties": {
-            "enabled": {
-              "default": true,
-              "description": "Enable runner group RestDefinition",
-              "title": "enabled",
-              "type": "boolean"
-            }
-          },
-          "title": "runnergroup",
-          "type": "object"
-        },
-        "teamrepo": {
-          "additionalProperties": false,
-          "description": "Team repository RestDefinition configuration",
-          "properties": {
-            "enabled": {
-              "default": true,
-              "description": "Enable team repository RestDefinition",
-              "title": "enabled",
-              "type": "boolean"
-            }
-          },
-          "title": "teamrepo",
-          "type": "object"
-        },
-        "workflow": {
-          "additionalProperties": false,
-          "description": "Workflow RestDefinition configuration",
-          "properties": {
-            "enabled": {
-              "default": true,
-              "description": "Enable workflow RestDefinition",
-              "title": "enabled",
-              "type": "boolean"
-            }
-          },
-          "title": "workflow",
-          "type": "object"
+        "enabled": {
+          "default": true,
+          "description": "Enable the Collaborator Blueprint dependency.",
+          "title": "enabled",
+          "type": "boolean"
         }
       },
-      "title": "restdefinitions",
+      "title": "github-provider-kog-collaborator-blueprint",
+      "type": "object"
+    },
+    "github-provider-kog-repo-blueprint": {
+      "additionalProperties": false,
+      "description": "Configuration for the Repo Blueprint dependency.",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "description": "Enable the Repo Blueprint dependency.",
+          "title": "enabled",
+          "type": "boolean"
+        }
+      },
+      "title": "github-provider-kog-repo-blueprint",
+      "type": "object"
+    },
+    "github-provider-kog-runnergroup-blueprint": {
+      "additionalProperties": false,
+      "description": "Configuration for the Runner Group Blueprint dependency.",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "description": "Enable the Runner Group Blueprint dependency.",
+          "title": "enabled",
+          "type": "boolean"
+        }
+      },
+      "title": "github-provider-kog-runnergroup-blueprint",
+      "type": "object"
+    },
+    "github-provider-kog-teamrepo-blueprint": {
+      "additionalProperties": false,
+      "description": "Configuration for the Team Repo Blueprint dependency.",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "description": "Enable the Team Repo Blueprint dependency.",
+          "title": "enabled",
+          "type": "boolean"
+        }
+      },
+      "title": "github-provider-kog-teamrepo-blueprint",
+      "type": "object"
+    },
+    "github-provider-kog-workflow-blueprint": {
+      "additionalProperties": false,
+      "description": "Configuration for the Workflow Blueprint dependency.",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "description": "Enable the Workflow Blueprint dependency.",
+          "title": "enabled",
+          "type": "boolean"
+        }
+      },
+      "title": "github-provider-kog-workflow-blueprint",
       "type": "object"
     }
   },

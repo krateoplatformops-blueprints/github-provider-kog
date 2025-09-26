@@ -4,3 +4,12 @@ description: A Helm chart for deploying the GitHub KOG Collaborator.
 type: application
 version: COLLABORATOR_CHART_VERSION
 appVersion: COLLABORATOR_APP_VERSION
+
+home: https://krateo.io
+icon: "https://github.com/krateoplatformops/krateo/blob/main/docs/media/logo.svg"
+keywords:
+  - generator
+sources:
+  - https://github.com/krateoplatformops-blueprints/github-provider-kog-collaborator
+annotations:
+  krateoSupportedVersion: ">= 2.5.1"

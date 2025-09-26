@@ -1,64 +1,59 @@
 # @schema
 # type: object
-# description: RestDefinition configuration for various GitHub resources
+# description: Configuration for the Collaborator Blueprint dependency.
 # @schema
-restdefinitions:
+github-provider-kog-collaborator-blueprint:
   # @schema
-  # type: object
-  # description: Collaborator RestDefinition configuration
+  # type: boolean
+  # description: Enable the Collaborator Blueprint dependency.
+  # default: true
   # @schema
-  collaborator:
-    # @schema
-    # type: boolean
-    # description: Enable collaborator RestDefinition
-    # default: true
-    # @schema
-    enabled: true
-  
+  enabled: true
+
+# @schema
+# type: object
+# description: Configuration for the Repo Blueprint dependency.
+# @schema
+github-provider-kog-repo-blueprint:
   # @schema
-  # type: object
-  # description: Repository RestDefinition configuration
+  # type: boolean
+  # description: Enable the Repo Blueprint dependency.
+  # default: true
   # @schema
-  repo:
-    # @schema
-    # type: boolean
-    # description: Enable repository RestDefinition
-    # default: true
-    # @schema
-    enabled: true
-  
+  enabled: true
+
+# @schema
+# type: object
+# description: Configuration for the Runner Group Blueprint dependency.
+# @schema
+github-provider-kog-runnergroup-blueprint:
   # @schema
-  # type: object
-  # description: Team repository RestDefinition configuration
+  # type: boolean
+  # description: Enable the Runner Group Blueprint dependency.
+  # default: true
   # @schema
-  teamrepo:
-    # @schema
-    # type: boolean
-    # description: Enable team repository RestDefinition
-    # default: true
-    # @schema
-    enabled: true
-  
+  enabled: true
+
+# @schema
+# type: object
+# description: Configuration for the Team Repo Blueprint dependency.
+# @schema
+github-provider-kog-teamrepo-blueprint:
   # @schema
-  # type: object
-  # description: Workflow RestDefinition configuration
+  # type: boolean
+  # description: Enable the Team Repo Blueprint dependency.
+  # default: true
   # @schema
-  workflow:
-    # @schema
-    # type: boolean
-    # description: Enable workflow RestDefinition
-    # default: true
-    # @schema
-    enabled: true
-  
+  enabled: true
+
+# @schema
+# type: object
+# description: Configuration for the Workflow Blueprint dependency.
+# @schema
+github-provider-kog-workflow-blueprint:
   # @schema
-  # type: object
-  # description: Runner group RestDefinition configuration
+  # type: boolean
+  # description: Enable the Workflow Blueprint dependency.
+  # default: true
   # @schema
-  runnergroup:
-    # @schema
-    # type: boolean
-    # description: Enable runner group RestDefinition
-    # default: true
-    # @schema
-    enabled: true
+  enabled: true
