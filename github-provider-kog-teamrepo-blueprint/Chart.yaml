@@ -10,6 +10,6 @@ icon: "https://github.com/krateoplatformops/krateo/blob/main/docs/media/logo.svg
 keywords:
   - generator
 sources:
-  - https://github.com/krateoplatformops-blueprints/github-provider-kog-teamrepo
+  - https://github.com/krateoplatformops-blueprints/github-provider-kog/tree/main/github-provider-kog-teamrepo-blueprint
 annotations:
   krateoSupportedVersion: ">= 2.5.1"
