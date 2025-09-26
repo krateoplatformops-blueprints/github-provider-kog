@@ -49,25 +49,29 @@ jobs:
       - name: Determine which plugins to build
         id: determine-matrix
         run: |
-          ALL_PLUGINS=$(ls -d plugins/cmd/*-plugin | xargs -n 1 basename)
+          ALL_PLUGINS=$(ls -d plugins/cmd/*-plugin 2>/dev/null | xargs -n 1 basename)
           PLUGINS_TO_BUILD="[]"
           CHANGED_FILES="${{ steps.changed-files.outputs.all_changed_files }}"
 
-          # Find changes in shared files (in plugins/ but not in plugins/cmd/)
-          SHARED_CHANGES=$(echo "$CHANGED_FILES" | grep '^plugins/' | grep -v '^plugins/cmd/')
+          if [ -n "$CHANGED_FILES" ]; then
+            # Find changes in shared files (in plugins/ but not in plugins/cmd/)
+            SHARED_CHANGES=$(echo "$CHANGED_FILES" | grep '^plugins/' | grep -v '^plugins/cmd/' || true)
 
-          if [ -n "$SHARED_CHANGES" ]; then
-            echo "Shared file changes detected, building all plugins."
-            echo "Triggering file: $(echo "$SHARED_CHANGES" | head -n1)"
-            PLUGINS_TO_BUILD=$(echo "$ALL_PLUGINS" | jq -R . | jq -s -c .)
+            if [ -n "$SHARED_CHANGES" ]; then
+              echo "Shared file changes detected, building all plugins."
+              echo "Triggering file: $(echo "$SHARED_CHANGES" | head -n1)"
+              PLUGINS_TO_BUILD=$(echo "$ALL_PLUGINS" | jq -R . | jq -s -c .)
+            else
+              echo "No shared file changes. Checking for individual plugin changes."
+              for plugin in $ALL_PLUGINS; do
+                if echo "$CHANGED_FILES" | grep -q "plugins/cmd/$plugin/"; then
+                  PLUGINS_TO_BUILD=$(echo "$PLUGINS_TO_BUILD" | jq -c --arg p "$plugin" '. + [$p]')
+                  echo "Added $plugin to build list."
+                fi
+              done
+            fi
           else
-            echo "No shared file changes. Checking for individual plugin changes."
-            for plugin in $ALL_PLUGINS; do
-              if echo "$CHANGED_FILES" | grep -q "plugins/cmd/$plugin/"; then
-                PLUGINS_TO_BUILD=$(echo "$PLUGINS_TO_BUILD" | jq -c --arg p "$plugin" '. + [$p]')
-                echo "Added $plugin to build list."
-              fi
-            done
+            echo "No changes found in the 'plugins/' directory."
           fi
 
           echo "Plugins to build: $PLUGINS_TO_BUILD"
