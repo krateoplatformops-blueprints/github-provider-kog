@@ -127,12 +127,22 @@ jobs:
           CHART_DIR="${{ steps.parse.outputs.chart_dir }}"
           echo "Linting chart in directory: ${CHART_DIR}"
           helm lint "${CHART_DIR}"
+      
+      # The action helm-gh-pages requires the chart to be in a subdirectory 
+      # but if we have multiple charts we cannot use `charts_dir: .` directly
+      # since it would include all charts. So we move the specific chart to a staging directory.
+      - name: Prepare for Publish
+        run: |
+          CHART_DIR="${{ steps.update_files.outputs.chart_dir }}"
+          rm -rf staging
+          mkdir staging
+          mv "${CHART_DIR}" staging/
 
       - name: Publish Helm chart
         uses: stefanprodan/helm-gh-pages@v1.7.0
         with:
           token: ${{ steps.authenticate.outputs.token }}
-          charts_dir: ${{ steps.update_files.outputs.chart_dir }}
+          charts_dir: staging
           charts_url: https://marketplace.krateo.io
           owner: krateoplatformops-blueprints
           repository: marketplace
