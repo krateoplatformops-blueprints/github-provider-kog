@@ -74,7 +74,7 @@ jobs:
           yq e -i '.version = "0.0.0-lint"' "$CHART_FILE"
           
           # If appVersion exists, replace it too
-          if yq e 'has("appVersion")' "$CHART_FILE"; then
+          if [ "$(yq e 'has("appVersion")' "$CHART_FILE")" = "true" ]; then
             yq e -i '.appVersion = "0.0.0-lint"' "$CHART_FILE"
           fi
 
