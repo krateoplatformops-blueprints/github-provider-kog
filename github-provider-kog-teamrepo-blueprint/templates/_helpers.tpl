@@ -18,7 +18,7 @@ If release name contains chart name it will be used as a full name.
 {{- if contains $name .Release.Name }}
 {{- .Release.Name | trunc 63 | trimSuffix "-" }}
 {{- else }}
-{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- printf "%s-%s-plugin" .Release.Name $name | trunc 63 | trimSuffix "-" }}
 {{- end }}
 {{- end }}
 {{- end }}
@@ -62,5 +62,5 @@ Create the name of the service account to use
 {{- end }}
 
 {{- define "teamrepo.webServiceUrl" -}}
-http://{{ .Release.Name }}-teamrepo-plugin.{{ .Release.Namespace }}.svc.cluster.local:8080
+http://{{ include "teamrepo-plugin-chart.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}
 {{- end -}}
