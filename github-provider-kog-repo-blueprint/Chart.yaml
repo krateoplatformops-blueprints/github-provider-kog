@@ -3,3 +3,12 @@ name: github-provider-kog-repo
 description: A Helm chart for deploying the GitHub KOG Repo.
 type: application
 version: REPO_CHART_VERSION
+
+home: https://krateo.io
+icon: "https://github.com/krateoplatformops/krateo/blob/main/docs/media/logo.svg"
+keywords:
+  - generator
+sources:
+  - https://github.com/krateoplatformops-blueprints/github-provider-kog-repo
+annotations:
+  krateoSupportedVersion: ">= 2.5.1"
