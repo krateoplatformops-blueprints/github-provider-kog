@@ -67,7 +67,7 @@ jobs:
         id: check_appversion
         run: |
           CHART_DIR="${{ steps.parse.outputs.chart_dir }}"
-          if yq e 'has("appVersion")' "${CHART_DIR}/Chart.yaml"; then
+          if [ "$(yq e 'has("appVersion")' "${CHART_DIR}/Chart.yaml")" = "true" ]; then
             echo "Chart contains appVersion key. Therefore, the resource should have a related plugin."
             echo "has_appversion=true" >> $GITHUB_OUTPUT
           else
