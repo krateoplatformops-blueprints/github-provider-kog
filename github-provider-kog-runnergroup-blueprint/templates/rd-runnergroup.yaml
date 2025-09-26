@@ -1,0 +1,46 @@
+kind: RestDefinition
+apiVersion: ogen.krateo.io/v1alpha1
+metadata:
+  name: {{ .Release.Name }}-runnergroup
+spec:
+  oasPath: configmap://{{ .Release.Namespace }}/{{ .Release.Name }}-runnergroup/runnergroup.yaml
+  resourceGroup: github.ogen.krateo.io
+  resource:
+    kind: RunnerGroup
+    identifiers:
+      - name # Within the same organization, the name of a runner group must be unique, so we can use it as an identifier.
+    additionalStatusFields:
+      - id
+      - runners_url
+      - hosted_runners_url
+    excludedSpecFields:
+      - id
+    verbsDescription:
+    - action: findby
+      method: GET
+      path: /orgs/{org}/actions/runner-groups
+    - action: get
+      method: GET
+      path: /orgs/{org}/actions/runner-groups/{id}
+    - action: update
+      method: PATCH
+      path: /orgs/{org}/actions/runner-groups/{id}
+    - action: create
+      method: POST
+      path: /orgs/{org}/actions/runner-groups
+    - action: delete
+      method: DELETE
+      path: /orgs/{org}/actions/runner-groups/{id}
+    configurationFields:
+    - fromOpenAPI:
+        name: page
+        in: query
+      fromRestDefinition:
+        actions:
+          - findby
+    - fromOpenAPI:
+        name: per_page
+        in: query
+      fromRestDefinition:
+        actions:
+          - findby

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: github-provider-kog-collaborator
+description: A Helm chart for deploying the GitHub KOG Collaborator.
+type: application
+version: COLLABORATOR_CHART_VERSION
+appVersion: COLLABORATOR_APP_VERSION

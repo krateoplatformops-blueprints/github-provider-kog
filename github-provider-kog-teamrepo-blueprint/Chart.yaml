@@ -1,0 +1,6 @@
+apiVersion: v2
+name: github-provider-kog-teamrepo
+description: A Helm chart for deploying the GitHub KOG TeamRepo.
+type: application
+version: TEAMREPO_CHART_VERSION
+appVersion: TEAMREPO_APP_VERSION

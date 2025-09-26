@@ -1,9 +1,0 @@
-{{- if .Values.restdefinitions.workflow.enabled }}
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ .Release.Name }}-workflow
-data:
-  workflow.yaml: |
-{{ tpl (.Files.Get "assets/workflow.yaml") . | indent 4 }}
-{{ end }}

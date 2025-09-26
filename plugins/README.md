@@ -1,7 +1,9 @@
-# Krateo Github Plugin for `rest-dynamic-controller`
+# Krateo Github Plugins for `rest-dynamic-controller`
 
-A specialized web service that addresses some inconsistencies in the GitHub REST API
-It is designed to work with the [`rest-dynamic-controller`](https://github.com/krateoplatformops/rest-dynamic-controller/) and [`github-provider-kog`](https://github.com/krateoplatformops-blueprints/github-provider-kog) (the `/blueprint` folder at the root of this repository).
+This repository contains the source code of a set of plugins.
+
+Specialized web services that addresses some inconsistencies in the GitHub REST API
+They are designed to work with the [`rest-dynamic-controller`](https://github.com/krateoplatformops/rest-dynamic-controller/) and [`github-provider-kog`](https://github.com/krateoplatformops-blueprints/github-provider-kog).
 
 ## Summary
 
@@ -18,6 +20,7 @@ It is designed to work with the [`rest-dynamic-controller`](https://github.com/k
 - [GitHub API Reference](#github-api-reference)
 - [Authentication](#authentication)
 - [Documentation](#documentation)
+- [Testing](#testing)
 - [Build Instructions](#build-instructions)
   - [Building with ko](#building-with-ko)
   - [Building with Docker](#building-with-docker)
@@ -324,13 +327,17 @@ To generate or update the documentation for a specific plugin, run the `swag-ini
 
 This will generate the necessary `swagger.json`, `swagger.yaml`, and OpenAPI v3 files in the `cmd/collaborator-plugin/docs/` directory.
 
+## Testing guide
+
+For detailed instructions on building and testing the plugins, please refer to the [Testing Guide](./docs/testing.md).
+
 ## Build Instructions
 
 This project is a Go workspace-based monorepo containing multiple, independent plugins. The build system is centralized in this directory (`plugins/`).
 
 ### Building with ko
 
-The primary way to build and publish the container images is using Google's `ko` tool. The configuration is in the `.ko.yaml` file in this directory.
+The primary way to build and publish the container images is using Google's `ko` tool. The configuration is in the `.ko.yaml` file in this directory. This is useful for local development.
 
 The `.ko.yaml` file defines a unique image name for each plugin. To build and publish all plugins, simply run:
 

@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/krateoplatformops/github-provider-kog/pkg/handlers"
-	"github.com/krateoplatformops/github-provider-kog/pkg/types"
 )
 
 func GetTeamRepo(opts handlers.HandlerOptions) handlers.Handler {
@@ -83,7 +82,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var repoPermissions types.Repository
+	var repoPermissions Repository
 	err = json.Unmarshal(body, &repoPermissions)
 	if err != nil {
 		h.Log.Print(err)
