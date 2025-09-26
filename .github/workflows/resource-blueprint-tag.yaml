@@ -6,7 +6,7 @@ on:
       # This workflow triggers on tags prefixed with a blueprint name, e.g.,
       # collaborator-blueprint/1.0.3
       # repo-blueprint/2.8.1
-      - '*-blueprint/[0-9]+.[0-9]+.[0-9]+*'
+      - '*-blueprint/[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   release-chart:
@@ -78,11 +78,19 @@ jobs:
       - name: Get Latest Plugin Image Tag
         if: steps.check_appversion.outputs.has_appversion == 'true'
         id: get_image_tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PLUGIN_NAME="${{ steps.parse.outputs.chart_name_prefix }}-plugin"
           echo "Searching for latest release of plugin: ${PLUGIN_NAME}"
 
-          LATEST_PLUGIN_IMAGE_TAG=$(gh release list --repo ${{ github.repository }} --limit 1 --json tagName --jq ".[] | select(.tagName | startswith(\"${PLUGIN_NAME}/\")) | .tagName" | sed "s|${PLUGIN_NAME}/||" | sort -V | tail -n 1)
+          LATEST_PLUGIN_IMAGE_TAG=$(
+            gh api --paginate repos/${{ github.repository }}/tags --jq '.[].name' \
+              | grep -E "^${PLUGIN_NAME}/" \
+              | sed "s|^${PLUGIN_NAME}/||" \
+              | sort -V \
+              | tail -n1
+          )
 
           if [ -z "$LATEST_PLUGIN_IMAGE_TAG" ]; then
             echo "Could not find a release for ${PLUGIN_NAME}. Aborting tag."
