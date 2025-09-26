@@ -78,8 +78,6 @@ jobs:
       - name: Get Latest Plugin Image Tag
         if: steps.check_appversion.outputs.has_appversion == 'true'
         id: get_image_tag
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PLUGIN_NAME="${{ steps.parse.outputs.chart_name_prefix }}-plugin"
           echo "Searching for latest release of plugin: ${PLUGIN_NAME}"
