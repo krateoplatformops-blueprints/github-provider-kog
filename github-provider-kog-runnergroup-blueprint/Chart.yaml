@@ -9,6 +9,6 @@ icon: "https://github.com/krateoplatformops/krateo/blob/main/docs/media/logo.svg
 keywords:
   - generator
 sources:
-  - https://github.com/krateoplatformops-blueprints/github-provider-kog-runnergroup
+  - https://github.com/krateoplatformops-blueprints/github-provider-kog/tree/main/github-provider-kog-runnergroup-blueprint
 annotations:
   krateoSupportedVersion: ">= 2.5.1"
