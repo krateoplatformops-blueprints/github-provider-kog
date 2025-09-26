@@ -56,6 +56,7 @@ jobs:
             if [ -n "$latest_version" ] && [ "$latest_version" != "null" ]; then
               echo "Found latest version: $latest_version"
               yq e -i "(.dependencies[] | select(.name == \"${dep_name}\")).version = \"${latest_version}\"" "$CHART_FILE"
+              echo "Updated ${dep_name} to version ${latest_version} in Chart.yaml"
             else
               echo "Error: Could not determine latest version of ${dep_name} from Helm repo. Aborting tag."
               exit 1
@@ -73,6 +74,8 @@ jobs:
           
           echo "Updating ${CHART_DIR}/Chart.yaml to version ${NEW_VERSION}"
           yq e ".version = \"${NEW_VERSION}\" | .appVersion = \"${NEW_VERSION}\"" -i "${CHART_DIR}/Chart.yaml"
+          echo "Updated Chart.yaml:"
+          cat "${CHART_DIR}/Chart.yaml"
 
           echo "chart_dir=${CHART_DIR}" >> $GITHUB_OUTPUT
 
