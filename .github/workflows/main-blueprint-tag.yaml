@@ -73,7 +73,7 @@ jobs:
           NEW_VERSION="${{ github.ref_name }}"
           
           echo "Updating ${CHART_DIR}/Chart.yaml to version ${NEW_VERSION}"
-          yq e ".version = \"${NEW_VERSION}\" | .appVersion = \"${NEW_VERSION}\"" -i "${CHART_DIR}/Chart.yaml"
+          yq e ".version = \"${NEW_VERSION}\"" -i "${CHART_DIR}/Chart.yaml"
           echo "Updated Chart.yaml:"
           cat "${CHART_DIR}/Chart.yaml"
 
