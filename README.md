@@ -63,17 +63,17 @@ kubectl get restdefinitions.ogen.krateo.io --all-namespaces | awk 'NR==1 || /git
 ```
 You should see output similar to this:
 ```sh
-NAMESPACE       NAME                           READY   AGE
-krateo-system   github-provider-collaborator   False   24s
-krateo-system   github-provider-repo           False   24s
-krateo-system   github-provider-runnergroup    False   24s
-krateo-system   github-provider-teamrepo       False   24s
-krateo-system   github-provider-workflow       False   24s
+NAMESPACE       NAME                               READY   AGE
+krateo-system   github-provider-kog-collaborator   False   59s
+krateo-system   github-provider-kog-repo           False   59s
+krateo-system   github-provider-kog-runnergroup    False   59s
+krateo-system   github-provider-kog-teamrepo       False   59s
+krateo-system   github-provider-kog-workflow       False   59s
 ```
 
-You can also wait for a specific RestDefinition (`github-provider-repo` in this case) to be ready with a command like this:
+You can also wait for a specific RestDefinition (`github-provider-kog-repo` in this case) to be ready with a command like this:
 ```sh
-kubectl wait restdefinitions.ogen.krateo.io github-provider-repo --for condition=Ready=True --namespace krateo-system --timeout=300s
+kubectl wait restdefinitions.ogen.krateo.io github-provider-kog-repo --for condition=Ready=True --namespace krateo-system --timeout=300s
 ```
 
 Note that the names of the RestDefinitions and the namespace where the RestDefinitions are installed may vary based on your configuration.
