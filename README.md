@@ -1,12 +1,15 @@
 # GitHub Provider KOG Blueprint
 
-This is a Blueprint that deploys the GitHub Provider KOG leveraging the [OASGen Provider](https://github.com/krateoplatformops/oasgen-provider) and using [OpenAPI Specifications (OAS) of the GitHub REST API](https://github.com/github/rest-api-description/blob/main/descriptions/api.github.com/api.github.com.2022-11-28.yaml).
+This is a Krateo Blueprint that deploys the GitHub Provider KOG leveraging the [OASGen Provider](https://github.com/krateoplatformops/oasgen-provider) and using [OpenAPI Specifications (OAS) of the GitHub REST API](https://github.com/github/rest-api-description/blob/main/descriptions/api.github.com/api.github.com.2022-11-28.yaml).
 This provider allows you to manage GitHub resources such as repositories, collaborators, teamrepoes, runnergroups and workflows runs in a cloud-native way using the Krateo platform.
 
 ## Summary
 
 - [Requirements](#requirements)
+- [Project structure](#project-structure)
 - [How to install](#how-to-install)
+  - [Full provider installation](#full-provider-installation)
+  - [Single resource installation](#single-resource-installation)
 - [Supported resources](#supported-resources)
   - [Resource details](#resource-details)
     - [Repo](#repo)
@@ -28,9 +31,18 @@ This provider allows you to manage GitHub resources such as repositories, collab
 [OASGen Provider](https://github.com/krateoplatformops/oasgen-provider) should be installed in your cluster. Follow the related Helm Chart [README](https://github.com/krateoplatformops/oasgen-provider-chart) for installation instructions.
 Note that a standard installation of Krateo contains the OASGen Provider.
 
+## Project structure
+
+This project is composed by the following folders:
+- **github-provider-kog-*-blueprint**: Helm charts that deploys single resources supported by this provider. These charts are useful if you want to deploy only one of the supported resources.
+- **github-provider-kog-blueprint**: a Helm chart that can deploy all resources supported by this provider. It is useful if you want to manage multiple of the supported resources.
+- **plugins**: a folder that is a monorepo containing multiple Go plugins. The plugins are used to resolve some inconsistencies of the GitHub REST API. If needed, they are deployed as part of the Helm chart of the specific resource.
+
 ## How to install
 
-To install the chart, use the following command:
+### Full provider installation
+
+To install the **github-provider-kog-blueprint** Helm chart (full provider), use the following command:
 
 ```sh
 helm install github-provider-kog github-provider-kog \
@@ -42,7 +54,7 @@ helm install github-provider-kog github-provider-kog \
 ```
 
 > [!NOTE]
-> Due to the nature of the providers leveraging the [Krateo OASGen Provider](https://github.com/krateoplatformops/oasgen-provider), this chart will install a set of RestDefinitions that will in turn trigger the deployment of a set controllers in the cluster. These controllers need to be up and running before you can create or manage resources using the Custom Resources (CRs) defined by this provider. This may take a few minutes after the chart is installed. The RestDefinitions will reach the condition `Ready` when the related CRDs are installed and the controllers are up and running.
+> Due to the nature of the providers leveraging the [OASGen Provider](https://github.com/krateoplatformops/oasgen-provider), this chart will install a set of RestDefinitions that will in turn trigger the deployment of a set controllers in the cluster. These controllers need to be up and running before you can create or manage resources using the Custom Resources (CRs) defined by this provider. This may take a few minutes after the chart is installed. The RestDefinitions will reach the condition `Ready` when the related CRDs are installed and the controllers are up and running.
 
 You can check the status of the RestDefinitions with the following commands:
 
@@ -51,20 +63,33 @@ kubectl get restdefinitions.ogen.krateo.io --all-namespaces | awk 'NR==1 || /git
 ```
 You should see output similar to this:
 ```sh
-NAMESPACE       NAME                           READY   AGE
-krateo-system   github-provider-collaborator   False   24s
-krateo-system   github-provider-repo           False   24s
-krateo-system   github-provider-runnergroup    False   24s
-krateo-system   github-provider-teamrepo       False   24s
-krateo-system   github-provider-workflow       False   24s
+NAMESPACE       NAME                               READY   AGE
+krateo-system   github-provider-kog-collaborator   False   59s
+krateo-system   github-provider-kog-repo           False   59s
+krateo-system   github-provider-kog-runnergroup    False   59s
+krateo-system   github-provider-kog-teamrepo       False   59s
+krateo-system   github-provider-kog-workflow       False   59s
 ```
 
-You can also wait for a specific RestDefinition (`github-provider-repo` in this case) to be ready with a command like this:
+You can also wait for a specific RestDefinition (`github-provider-kog-repo` in this case) to be ready with a command like this:
 ```sh
-kubectl wait restdefinitions.ogen.krateo.io github-provider-repo --for condition=Ready=True --namespace krateo-system --timeout=300s
+kubectl wait restdefinitions.ogen.krateo.io github-provider-kog-repo --for condition=Ready=True --namespace krateo-system --timeout=300s
 ```
 
 Note that the names of the RestDefinitions and the namespace where the RestDefinitions are installed may vary based on your configuration.
+
+### Single resource installation
+
+To manage a single resource, you can install the specific Helm chart for that resource. For example, to install the `github-provider-kog-repo` resource, you can use the following command:
+
+```sh
+helm install github-provider-kog-repo github-provider-kog-repo \
+  --repo https://marketplace.krateo.io \
+  --namespace <release-namespace> \
+  --create-namespace \
+  --version 1.0.0 \
+  --wait
+```
 
 ## Supported resources
 
@@ -309,21 +334,20 @@ For example, you can create a single `RepoConfiguration` resource and reference 
 
 ### values.yaml
 
-You can customize the chart by modifying the `values.yaml` file.
-For instance, you can select which resources the provider should support in the oncoming installation by setting the `restdefinitions` field in the `values.yaml` file. 
-This may be useful if you want to limit the resources managed by the provider to only those you need, reducing the overhead of managing unnecessary controllers. For instance, if you only need to manage `Repo` resources, you can disable the other resources by setting the `restdefinitions` field as follows:
+You can customize the **github-provider-kog-blueprint** chart by modifying the `values.yaml` file.
+For instance, you can select which resources the provider should support in the oncoming installation.
+This may be useful if you want to limit the resources managed by the provider to only those you need, reducing the overhead of managing unnecessary controllers. For instance, if you only need to manage `Repo` resources, you can disable the other resources by setting the various `enabled` fields to `false` in the `values.yaml` file, as shown below:
 ```yaml
-restdefinitions:
-  collaborator:
-    enabled: false
-  repo:
-    enabled: true
-  teamrepo:
-    enabled: false
-  workflow:
-    enabled: false
-  runnergroup:
-    enabled: false
+github-provider-kog-collaborator-blueprint:
+  enabled: false
+github-provider-kog-repo-blueprint:
+  enabled: true
+github-provider-kog-teamrepo-blueprint:
+  enabled: false
+github-provider-kog-workflow-blueprint:
+  enabled: false
+github-provider-kog-runnergroup-blueprint:
+  enabled: false
 ```
 The default configuration of the chart enables all resources supported by the chart.
 
@@ -332,40 +356,27 @@ The default configuration of the chart enables all resources supported by the ch
 In order to enable verbose logging for the controllers, you can add the `krateo.io/connector-verbose: "true"` annotation to the metadata of the resources you want to manage, as shown in the examples above. 
 This will enable verbose logging for those specific resources, which can be useful for debugging and troubleshooting as it will provide more detailed information about the operations performed by the controllers.
 
-## Chart structure
+## Charts structure
 
-Main components of the chart:
+Main components of the charts:
 
-- **RestDefinitions**: These are the core resources needed to manage resources leveraging the Krateo OASGen Provider. In this case, they refers to the OpenAPI Specification to be used for the creation of the Custom Resources (CRs) that represent GitHub resources.
+- **RestDefinitions**: These are the core resources needed to manage resources leveraging the OASGen Provider. In this case, they refers to the OpenAPI Specification to be used for the creation of the Custom Resources (CRs) that represent GitHub resources.
 They also define the operations that can be performed on those resources. Once the chart is installed, RestDefinitions will be created and as a result, specific controllers will be deployed in the cluster to manage the resources defined with those RestDefinitions.
 
 - **ConfigMaps**: Refer directly to the OpenAPI Specification content in the `/assets` folder.
 
 - **/assets** folder: Contains the selected OpenAPI Specification files for the GitHub REST API.
 
-- **/samples** folder: Contains example resources for each supported resource type as seen in this README. These examples demonstrate how to create and manage GitHub resources using the Krateo GitHub Provider KOG.
+- **Deployment** (optional): Deploys a plugin that is used as a proxy to resolve some inconsistencies of the GitHub REST API. The specific endpoins managed by the plugin are described in the [plugins README](./plugins/README.md)
 
-- **Deployment**: Deploys a [plugin](https://github.com/krateoplatformops/github-rest-dynamic-controller-plugin) that is used as a proxy to resolve some inconsistencies of the GitHub REST API. The specific endpoins managed by the plugin are described in the [plugin README](https://github.com/krateoplatformops/github-rest-dynamic-controller-plugin/blob/main/README.md)
-
-- **Service**: Exposes the plugin described above, allowing the resource controllers to communicate with the GitHub REST API through the plugin, only if needed.
+- **Service** (optional): Exposes the plugin described above, allowing the resource controllers to communicate with the GitHub REST API through the plugin, only if needed.
 
 ## Troubleshooting
 
 For troubleshooting, you can refer to the [Troubleshooting guide](./blueprint/docs/troubleshooting.md) in the `/docs` folder of the blueprint (chart). 
 It contains common issues and solutions related to this chart.
 
-## CI/CD
+## Release process
 
-This repository contains a monorepo for a Helm chart (the "blueprint") and multiple Go plugins. 
+Please refer to the [Release guide](./docs/release.md) in the `/docs` folder of the chart for detailed instructions on how to release new versions of the chart and its components.
 
-### Workflows
-
-- **Blueprint CI/CD (`blueprint-release-*.yaml`):**
-  - These workflows are responsible for linting, packaging, and publishing the Helm chart.
-  - Pull requests will trigger a linting job.
-  - Pushes to a tag (e.g., `1.2.3`) will trigger a release to the Helm repository.
-
-- **Plugins CI/CD (`plugin-release-*.yaml`):**
-  - These workflows handle the building, testing, and releasing of Go plugins.
-  - Pull requests will trigger build and test jobs.
-  - Pushes to a tag (e.g., `1.2.3`) will trigger a release to the GitHub Container Registry.

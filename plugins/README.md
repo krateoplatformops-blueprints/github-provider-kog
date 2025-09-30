@@ -1,13 +1,13 @@
-# Krateo Github Plugins for `rest-dynamic-controller`
+# Plugins for GitHub Provider KOG
 
-This repository contains the source code of a set of plugins.
+This repository contains the source code of a set of plugins for the GitHub Provider KOG.
 
 Specialized web services that addresses some inconsistencies in the GitHub REST API
 They are designed to work with the [`rest-dynamic-controller`](https://github.com/krateoplatformops/rest-dynamic-controller/) and [`github-provider-kog`](https://github.com/krateoplatformops-blueprints/github-provider-kog).
 
 ## Summary
 
-- [Summary](#summary)
+- [Project structure](#project-structure)
 - [API Endpoints](#api-endpoints)
   - [Collaborator](#collaborator)
     - [Get Repository Collaborator Permission](#get-repository-collaborator-permission)
@@ -16,7 +16,6 @@ They are designed to work with the [`rest-dynamic-controller`](https://github.co
     - [Remove Repository Collaborator](#remove-repository-collaborator)
   - [TeamRepo](#teamrepo)
     - [Get TeamRepo Permission](#get-teamrepo-permission)
-- [Swagger Documentation](#swagger-documentation)
 - [GitHub API Reference](#github-api-reference)
 - [Authentication](#authentication)
 - [Documentation](#documentation)
@@ -24,6 +23,12 @@ They are designed to work with the [`rest-dynamic-controller`](https://github.co
 - [Build Instructions](#build-instructions)
   - [Building with ko](#building-with-ko)
   - [Building with Docker](#building-with-docker)
+
+## Project structure
+
+The project is organized as a Go workspace-based monorepo containing multiple, independent plugins. Each plugin resides in its own subdirectory under the `cmd/` directory, while shared code is located in the `pkg/` directory.
+Each plugin is a standalone Go module, allowing for independent building and versioning.
+Therefore, each plugin can be built into its own container image. Please refer to the [release process section of the main readme](../README.md#release-process) for more details.
 
 ## API Endpoints
 
@@ -302,17 +307,13 @@ It retrieves repository permissions for a specific team.
 ```
 </details>
 
-## Swagger Documentation
-
-For more detailed information about the API endpoints, please refer to the Swagger documentation available at `/swagger/index.html` endpoint of the service.
-
 ## GitHub API Reference
 
 For complete GitHub REST API documentation, visit: [GitHub REST API docs](https://docs.github.com/en/rest?apiVersion=2022-11-28)
 
 ## Authentication
 
-The plugin will forward the `Authorization` header passed in the request to this plugin to the GitHub REST API.
+The plugins will forward the `Authorization` header passed in the request to this plugin to the GitHub REST API.
 
 ## Documentation
 
@@ -326,6 +327,8 @@ To generate or update the documentation for a specific plugin, run the `swag-ini
 ```
 
 This will generate the necessary `swagger.json`, `swagger.yaml`, and OpenAPI v3 files in the `cmd/collaborator-plugin/docs/` directory.
+
+You can then access the Swagger UI for each plugin at `/swagger/index.html`.
 
 ## Testing guide
 
@@ -370,4 +373,4 @@ docker build --build-arg PLUGIN_NAME=teamrepo-plugin -t teamrepo-plugin:latest .
 This command should be run from this `plugins` directory, as it sets the necessary build context to access the shared `pkg` directory.
 Note that the `PLUGIN_NAME` argument must match the name of the subdirectory containing the `main.go` file for the desired plugin therefore it is case-sensitive and must be exact.
 
-
+Note that usually this process is automated as part of the [release process](../README.md#release-process) defined in the main readme.
