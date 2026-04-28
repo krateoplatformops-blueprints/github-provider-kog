@@ -38,7 +38,7 @@ OUTPUT_DIR="${PLUGIN_DIR}/docs"
 
 # Generate the Swagger v2 JSON file
 # The --output flag sets the destination directory for the 'docs' folder
-swag init --parseDependency -g "${MAIN_GO_PATH}" --output "${OUTPUT_DIR}"
+swag init --dir "${PLUGIN_DIR}" -g "main.go" --output "${OUTPUT_DIR}"
 
 # Define the input and output paths for the conversion script
 SWAGGER_V2_JSON="${OUTPUT_DIR}/swagger.json"

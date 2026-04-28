@@ -16,6 +16,10 @@ They are designed to work with the [`rest-dynamic-controller`](https://github.co
     - [Remove Repository Collaborator](#remove-repository-collaborator)
   - [TeamRepo](#teamrepo)
     - [Get TeamRepo Permission](#get-teamrepo-permission)
+  - [BranchProtection](#branchprotection)
+    - [Get Branch Protection](#get-branch-protection)
+    - [Create or Update Branch Protection](#create-or-update-branch-protection)
+    - [Delete Branch Protection](#delete-branch-protection)
 - [GitHub API Reference](#github-api-reference)
 - [Authentication](#authentication)
 - [Documentation](#documentation)
@@ -307,6 +311,79 @@ It retrieves repository permissions for a specific team.
 ```
 </details>
 
+### BranchProtection
+
+All "BranchProtection" endpoints normalize the GitHub Branch Protection API response so that boolean fields, which GitHub wraps in `{ "enabled": bool }` objects — are returned as plain booleans, enabling correct reconciliation by the `rest-dynamic-controller`.
+
+#### Get Branch Protection
+
+```http
+GET /api/{owner}/{repo}/branches/{branch}/protection
+```
+
+**Description**:
+Retrieves branch protection settings for the given branch and normalizes the response for consistent reconciliation.
+
+**Why This Endpoint Exists**:
+- GitHub returns boolean fields (e.g., `enforce_admins`, `allow_force_pushes`) wrapped in objects like `{ "enabled": true }`. The plugin unwraps these into plain booleans matching the request body format.
+- User/team/app arrays in `restrictions` and `required_pull_request_reviews` are returned as full objects; the plugin flattens them to string arrays (login/slug) matching the PUT request format.
+- Server-only URL fields (`url`, `_links`) are stripped from nested objects.
+
+**Path parameters**:
+- `owner` (string, required): Repository owner (user or organization)
+- `repo` (string, required): Repository name
+- `branch` (string, required): Branch name
+
+**Responses**:
+- `200 OK`: Normalized branch protection settings
+- `404 Not Found`: Branch protection not configured
+
+#### Create or Update Branch Protection
+
+```http
+PUT /api/{owner}/{repo}/branches/{branch}/protection
+```
+
+**Description**:
+Creates or updates branch protection rules. GitHub's PUT is idempotent — this endpoint is used for both `create` and `update` actions in the RestDefinition.
+
+**Why This Endpoint Exists**:
+- GitHub requires `required_status_checks`, `enforce_admins`, `required_pull_request_reviews`, and `restrictions` to always be present in the request body (even as `null`). The plugin fills in missing required fields with safe defaults before forwarding.
+- The response is normalized identically to the GET handler to ensure the controller sees no drift immediately after creation.
+
+**Path parameters**:
+- `owner` (string, required): Repository owner
+- `repo` (string, required): Repository name
+- `branch` (string, required): Branch name
+
+**Request Body**: `BranchProtectionRequest` (see OAS schema)
+
+**Responses**:
+- `200 OK`: Normalized branch protection settings
+- `422 Unprocessable Entity`: Validation error from GitHub
+
+#### Delete Branch Protection
+
+```http
+DELETE /api/{owner}/{repo}/branches/{branch}/protection
+```
+
+**Description**:
+Removes branch protection rules from the given branch. Idempotent: returns `204 No Content` even if the branch was not protected.
+
+**Why This Endpoint Exists**:
+- GitHub returns `404 Not Found` when deleting protection on an already-unprotected branch. The plugin maps this to `204 No Content` for idempotent delete behavior expected by the controller.
+
+**Path parameters**:
+- `owner` (string, required): Repository owner
+- `repo` (string, required): Repository name
+- `branch` (string, required): Branch name
+
+**Responses**:
+- `204 No Content`: Branch protection deleted (or was already absent)
+- `403 Forbidden`: Insufficient permissions
+
+
 ## GitHub API Reference
 
 For complete GitHub REST API documentation, visit: [GitHub REST API docs](https://docs.github.com/en/rest?apiVersion=2022-11-28)
@@ -353,6 +430,7 @@ ko publish .
 Example published images:
 - `KO_DOCKER_REPO`/collaborator-plugin
 - `KO_DOCKER_REPO`/teamrepo-plugin
+- `KO_DOCKER_REPO`/branchprotection-plugin
 
 ### Building with Docker
 
@@ -368,6 +446,11 @@ docker build --build-arg PLUGIN_NAME=collaborator-plugin -t collaborator-plugin:
 **To build the `teamrepo-plugin`:**
 ```sh
 docker build --build-arg PLUGIN_NAME=teamrepo-plugin -t teamrepo-plugin:latest .
+```
+
+**To build the `branchprotection-plugin`:**
+```sh
+docker build --build-arg PLUGIN_NAME=branchprotection-plugin -t branchprotection-plugin:latest .
 ```
 
 This command should be run from this `plugins` directory, as it sets the necessary build context to access the shared `pkg` directory.

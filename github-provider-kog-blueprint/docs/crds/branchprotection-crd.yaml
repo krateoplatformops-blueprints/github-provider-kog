@@ -1,0 +1,335 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.18.0
+  creationTimestamp: "2026-04-28T13:44:09Z"
+  generation: 1
+  name: branchprotections.github.ogen.krateo.io
+  resourceVersion: "240310"
+  uid: 9e901ab6-78a8-4c96-9089-234135c4793a
+spec:
+  conversion:
+    strategy: None
+  group: github.ogen.krateo.io
+  names:
+    categories:
+    - branchprotection
+    - restresources
+    - rr
+    kind: BranchProtection
+    listKind: BranchProtectionList
+    plural: branchprotections
+    singular: branchprotection
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    - jsonPath: .status.conditions[?(@.type=='Ready')].status
+      name: READY
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              allow_deletions:
+                description: 'Allows deletion of the protected branch by anyone with
+                  write access to the repository. Set to false to prevent deletion
+                  of the protected branch. Default: false.'
+                type: boolean
+              allow_force_pushes:
+                description: 'Permits force pushes to the protected branch by anyone
+                  with write access to the repository. Set to true to allow force
+                  pushes. Set to false or null to block force pushes. Default: false.'
+                type: boolean
+              allow_fork_syncing:
+                default: false
+                description: 'Whether users can pull changes from upstream when the
+                  branch is locked. Set to true to allow fork syncing. Set to false
+                  to prevent fork syncing. Default: false.'
+                type: boolean
+              block_creations:
+                description: 'If set to true, the restrictions branch protection settings
+                  which limits who can push will also block pushes which create new
+                  branches, unless the push is initiated by a user, team, or app which
+                  has the ability to push. Default: false.'
+                type: boolean
+              branch:
+                description: 'PARAMETER: path - Branch name'
+                type: string
+              configurationRef:
+                description: A reference to the Configuration CR that holds all the
+                  needed configuration for this resource. OASGen Provider added this
+                  field automatically.
+                properties:
+                  name:
+                    type: string
+                  namespace:
+                    description: Namespace of the referenced Configuration CR. If
+                      not provided, the same namespace will be used.
+                    type: string
+                required:
+                - name
+                type: object
+              enforce_admins:
+                description: Enforce all configured restrictions for administrators.
+                  Set to `true` to enforce required status checks for repository administrators.
+                  Set to `null` to disable.
+                type: boolean
+              lock_branch:
+                default: false
+                description: 'Whether to set the branch as read-only. If this is true,
+                  users will not be able to push to the branch. Default: false.'
+                type: boolean
+              owner:
+                description: 'PARAMETER: path - Repository owner (user or organization)'
+                type: string
+              repo:
+                description: 'PARAMETER: path - Repository name'
+                type: string
+              required_conversation_resolution:
+                description: 'Requires all conversations on code to be resolved before
+                  a pull request can be merged into a branch that matches this rule.
+                  Set to false to disable. Default: false.'
+                type: boolean
+              required_linear_history:
+                description: 'Enforces a linear commit Git history, which prevents
+                  anyone from pushing merge commits to a branch. Set to true to enforce
+                  a linear commit history. Set to false to disable. Default: false.'
+                type: boolean
+              required_pull_request_reviews:
+                description: Require at least one approving review on a pull request,
+                  before merging. Set to `null` to disable.
+                properties:
+                  bypass_pull_request_allowances:
+                    description: Allow specific users, teams, or apps to bypass pull
+                      request requirements.
+                    properties:
+                      apps:
+                        description: The list of app `slug`s allowed to bypass pull
+                          request requirements.
+                        items:
+                          type: string
+                        type: array
+                      teams:
+                        description: The list of team `slug`s allowed to bypass pull
+                          request requirements.
+                        items:
+                          type: string
+                        type: array
+                      users:
+                        description: The list of user `login`s allowed to bypass pull
+                          request requirements.
+                        items:
+                          type: string
+                        type: array
+                    type: object
+                  dismiss_stale_reviews:
+                    description: Set to true if you want to automatically dismiss
+                      approving reviews when someone pushes a new commit.
+                    type: boolean
+                  dismissal_restrictions:
+                    description: Specify which users, teams, and apps can dismiss
+                      pull request reviews. Pass an empty `dismissal_restrictions`
+                      object to disable. User and team `dismissal_restrictions` are
+                      only available for organization-owned repositories. Omit this
+                      parameter for personal repositories.
+                    properties:
+                      apps:
+                        description: The list of app `slug`s with dismissal access
+                        items:
+                          type: string
+                        type: array
+                      teams:
+                        description: The list of team `slug`s with dismissal access
+                        items:
+                          type: string
+                        type: array
+                      users:
+                        description: The list of user `login`s with dismissal access
+                        items:
+                          type: string
+                        type: array
+                    type: object
+                  require_code_owner_reviews:
+                    description: Blocks merging pull requests until code owners review
+                      them.
+                    type: boolean
+                  require_last_push_approval:
+                    default: false
+                    description: 'Whether the most recent push must be approved by
+                      someone other than the person who pushed it. Default: false.'
+                    type: boolean
+                  required_approving_review_count:
+                    description: Specify the number of reviewers required to approve
+                      pull requests. Use a number between 1 and 6 or 0 to not require
+                      reviewers.
+                    format: int32
+                    type: integer
+                type: object
+              required_status_checks:
+                description: Require status checks to pass before merging. Set to
+                  `null` to disable.
+                properties:
+                  checks:
+                    description: The list of status checks to require in order to
+                      merge into this branch.
+                    items:
+                      properties:
+                        app_id:
+                          description: The ID of the GitHub App that must provide
+                            this check. Omit this field to automatically select the
+                            GitHub App that has recently provided this check, or any
+                            app if it was not set by a GitHub App. Pass -1 to explicitly
+                            allow any app to set the status.
+                          format: int32
+                          type: integer
+                        context:
+                          description: The name of the required check.
+                          type: string
+                      required:
+                      - context
+                      type: object
+                    type: array
+                  contexts:
+                    description: '"**Closing down notice**: The list of status checks
+                      to require in order to merge into this branch. If any of these
+                      checks have recently been set by a particular GitHub App, they
+                      will be required to come from that app in future for the branch
+                      to merge. Use `checks` instead of `contexts` for more fine-grained
+                      control."'
+                    items:
+                      type: string
+                    type: array
+                  strict:
+                    description: Require branches to be up to date before merging.
+                    type: boolean
+                required:
+                - contexts
+                - strict
+                type: object
+              restrictions:
+                description: Restrict who can push to the protected branch. User,
+                  app, and team restrictions are only available for organization-owned
+                  repositories. Set to null to disable.
+                properties:
+                  apps:
+                    description: The list of app slugs with push access.
+                    items:
+                      type: string
+                    type: array
+                  teams:
+                    description: The list of team slugs with push access.
+                    items:
+                      type: string
+                    type: array
+                  users:
+                    description: The list of user logins with push access.
+                    items:
+                      type: string
+                    type: array
+                required:
+                - teams
+                - users
+                type: object
+            required:
+            - branch
+            - configurationRef
+            - enforce_admins
+            - owner
+            - repo
+            - required_pull_request_reviews
+            - required_status_checks
+            - restrictions
+            type: object
+          status:
+            properties:
+              conditions:
+                description: Conditions of the resource.
+                items:
+                  description: A Condition that may apply to a resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        LastTransitionTime is the last time this condition transitioned from one
+                        status to another.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        A Message containing details about this condition's last transition from
+                        one status to another, if any.
+                      type: string
+                    reason:
+                      description: A Reason for this condition's last transition from
+                        one status to another.
+                      type: string
+                    status:
+                      description: Status of this condition; is it currently True,
+                        False, or Unknown?
+                      type: string
+                    type:
+                      description: |-
+                        Type of this condition. At most one of each condition type may apply to
+                        a resource at any point in time.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              url:
+                description: The URL of the branch protection resource.
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    categories:
+    - branchprotection
+    - restresources
+    - rr
+    kind: BranchProtection
+    listKind: BranchProtectionList
+    plural: branchprotections
+    singular: branchprotection
+  conditions:
+  - lastTransitionTime: "2026-04-28T13:44:09Z"
+    message: no conflicts found
+    reason: NoConflicts
+    status: "True"
+    type: NamesAccepted
+  - lastTransitionTime: "2026-04-28T13:44:09Z"
+    message: the initial names have been accepted
+    reason: InitialNamesAccepted
+    status: "True"
+    type: Established
+  storedVersions:
+  - v1alpha1

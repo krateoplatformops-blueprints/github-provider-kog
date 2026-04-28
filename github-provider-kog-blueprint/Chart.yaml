@@ -24,9 +24,14 @@ keywords:
 sources:
   - https://github.com/krateoplatformops-blueprints/github-provider-kog
 annotations:
-  krateoSupportedVersion: ">= 2.5.1"
+  krateoSupportedVersion: ">= 2.7.0"
 
 dependencies:
+  - name: github-provider-kog-branchprotection # the name of the dependency chart
+    version: GITHUB_PROVIDER_KOG_BRANCHPROTECTION_BLUEPRINT_VERSION
+    repository: https://marketplace.krateo.io
+    condition: github-provider-kog-branchprotection-blueprint.enabled
+
   - name: github-provider-kog-collaborator # the name of the dependency chart
     version: GITHUB_PROVIDER_KOG_COLLABORATOR_BLUEPRINT_VERSION
     repository: https://marketplace.krateo.io

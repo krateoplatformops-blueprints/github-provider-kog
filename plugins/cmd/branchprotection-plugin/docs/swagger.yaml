@@ -1,0 +1,397 @@
+basePath: /
+definitions:
+  branchprotection.BranchProtectionRequest:
+    properties:
+      allow_deletions:
+        description: 'Allows deletion of the protected branch by anyone with write
+          access to the repository. Set to false to prevent deletion of the protected
+          branch. Default: false.'
+        type: boolean
+      allow_force_pushes:
+        description: 'Permits force pushes to the protected branch by anyone with
+          write access to the repository. Set to true to allow force pushes. Set to
+          false or null to block force pushes. Default: false.'
+        type: boolean
+        x-nullable: true
+      allow_fork_syncing:
+        default: false
+        description: 'Whether users can pull changes from upstream when the branch
+          is locked. Set to true to allow fork syncing. Set to false to prevent fork
+          syncing. Default: false.'
+        type: boolean
+      block_creations:
+        description: 'If set to true, the restrictions branch protection settings
+          which limits who can push will also block pushes which create new branches,
+          unless the push is initiated by a user, team, or app which has the ability
+          to push. Default: false.'
+        type: boolean
+      enforce_admins:
+        description: Enforce all configured restrictions for administrators. Set to
+          `true` to enforce required status checks for repository administrators.
+          Set to `null` to disable.
+        type: boolean
+        x-nullable: true
+      lock_branch:
+        default: false
+        description: 'Whether to set the branch as read-only. If this is true, users
+          will not be able to push to the branch. Default: false.'
+        type: boolean
+      required_conversation_resolution:
+        description: 'Requires all conversations on code to be resolved before a pull
+          request can be merged into a branch that matches this rule. Set to false
+          to disable. Default: false.'
+        type: boolean
+      required_linear_history:
+        description: 'Enforces a linear commit Git history, which prevents anyone
+          from pushing merge commits to a branch. Set to true to enforce a linear
+          commit history. Set to false to disable. Default: false.'
+        type: boolean
+      required_pull_request_reviews:
+        allOf:
+        - $ref: '#/definitions/branchprotection.RequiredPullRequestReviews'
+        description: Require at least one approving review on a pull request, before
+          merging. Set to `null` to disable.
+        x-nullable: true
+      required_status_checks:
+        allOf:
+        - $ref: '#/definitions/branchprotection.RequiredStatusChecks'
+        description: Require status checks to pass before merging. Set to `null` to
+          disable.
+        x-nullable: true
+      restrictions:
+        allOf:
+        - $ref: '#/definitions/branchprotection.Restrictions'
+        description: Restrict who can push to the protected branch. User, app, and
+          team restrictions are only available for organization-owned repositories.
+          Set to null to disable.
+        x-nullable: true
+    required:
+    - enforce_admins
+    - required_pull_request_reviews
+    - required_status_checks
+    - restrictions
+    type: object
+  branchprotection.BranchProtectionResponse:
+    properties:
+      allow_deletions:
+        description: Whether deletion of the protected branch is allowed.
+        type: boolean
+      allow_force_pushes:
+        description: Whether force pushes are permitted.
+        type: boolean
+      allow_fork_syncing:
+        description: Whether users can pull changes from upstream when the branch
+          is locked.
+        type: boolean
+      block_creations:
+        description: Whether pushes that create new branches are blocked.
+        type: boolean
+      enforce_admins:
+        description: Whether admins are subject to the branch protection rules.
+        type: boolean
+      lock_branch:
+        description: Whether the branch is read-only.
+        type: boolean
+      required_conversation_resolution:
+        description: Whether all conversations on code must be resolved before merging.
+        type: boolean
+      required_linear_history:
+        description: Whether a linear commit Git history is enforced.
+        type: boolean
+      required_pull_request_reviews:
+        allOf:
+        - $ref: '#/definitions/branchprotection.RequiredPullRequestReviewsResponse'
+        description: Pull request review requirements.
+      required_status_checks:
+        allOf:
+        - $ref: '#/definitions/branchprotection.RequiredStatusChecks'
+        description: Require status checks to pass before merging.
+      restrictions:
+        allOf:
+        - $ref: '#/definitions/branchprotection.Restrictions'
+        description: Push access restrictions.
+      url:
+        description: The URL of the branch protection resource.
+        type: string
+    type: object
+  branchprotection.BypassAllowances:
+    properties:
+      apps:
+        description: The list of app `slug`s allowed to bypass pull request requirements.
+        items:
+          type: string
+        type: array
+      teams:
+        description: The list of team `slug`s allowed to bypass pull request requirements.
+        items:
+          type: string
+        type: array
+      users:
+        description: The list of user `login`s allowed to bypass pull request requirements.
+        items:
+          type: string
+        type: array
+    type: object
+  branchprotection.ErrorResponse:
+    properties:
+      documentation_url:
+        description: A URL to the documentation for this error.
+        type: string
+      message:
+        description: A message describing the error.
+        type: string
+    type: object
+  branchprotection.RequiredPullRequestReviews:
+    properties:
+      bypass_pull_request_allowances:
+        allOf:
+        - $ref: '#/definitions/branchprotection.BypassAllowances'
+        description: Allow specific users, teams, or apps to bypass pull request requirements.
+      dismiss_stale_reviews:
+        description: Set to true if you want to automatically dismiss approving reviews
+          when someone pushes a new commit.
+        type: boolean
+      dismissal_restrictions:
+        allOf:
+        - $ref: '#/definitions/branchprotection.UserTeamAppList'
+        description: Specify which users, teams, and apps can dismiss pull request
+          reviews. Pass an empty `dismissal_restrictions` object to disable. User
+          and team `dismissal_restrictions` are only available for organization-owned
+          repositories. Omit this parameter for personal repositories.
+      require_code_owner_reviews:
+        description: Blocks merging pull requests until code owners review them.
+        type: boolean
+      require_last_push_approval:
+        default: false
+        description: 'Whether the most recent push must be approved by someone other
+          than the person who pushed it. Default: false.'
+        type: boolean
+      required_approving_review_count:
+        description: Specify the number of reviewers required to approve pull requests.
+          Use a number between 1 and 6 or 0 to not require reviewers.
+        type: integer
+    type: object
+  branchprotection.RequiredPullRequestReviewsResponse:
+    properties:
+      bypass_pull_request_allowances:
+        allOf:
+        - $ref: '#/definitions/branchprotection.BypassAllowances'
+        description: Users, teams, or apps allowed to bypass pull request requirements.
+      dismiss_stale_reviews:
+        description: Whether approving reviews are automatically dismissed when someone
+          pushes a new commit.
+        type: boolean
+      dismissal_restrictions:
+        allOf:
+        - $ref: '#/definitions/branchprotection.UserTeamAppList'
+        description: Users, teams, and apps that can dismiss pull request reviews.
+      require_code_owner_reviews:
+        description: Whether merging pull requests is blocked until code owners review
+          them.
+        type: boolean
+      require_last_push_approval:
+        description: Whether the most recent push must be approved by someone other
+          than the person who pushed it.
+        type: boolean
+      required_approving_review_count:
+        description: The number of reviewers required to approve pull requests.
+        type: integer
+    type: object
+  branchprotection.RequiredStatusChecks:
+    properties:
+      checks:
+        description: The list of status checks to require in order to merge into this
+          branch.
+        items:
+          $ref: '#/definitions/branchprotection.StatusCheck'
+        type: array
+      contexts:
+        description: '"**Closing down notice**: The list of status checks to require
+          in order to merge into this branch. If any of these checks have recently
+          been set by a particular GitHub App, they will be required to come from
+          that app in future for the branch to merge. Use `checks` instead of `contexts`
+          for more fine-grained control."'
+        items:
+          type: string
+        type: array
+      strict:
+        description: Require branches to be up to date before merging.
+        type: boolean
+    required:
+    - contexts
+    - strict
+    type: object
+  branchprotection.Restrictions:
+    properties:
+      apps:
+        description: The list of app slugs with push access.
+        items:
+          type: string
+        type: array
+      teams:
+        description: The list of team slugs with push access.
+        items:
+          type: string
+        type: array
+      users:
+        description: The list of user logins with push access.
+        items:
+          type: string
+        type: array
+    required:
+    - teams
+    - users
+    type: object
+  branchprotection.StatusCheck:
+    properties:
+      app_id:
+        description: The ID of the GitHub App that must provide this check. Omit this
+          field to automatically select the GitHub App that has recently provided
+          this check, or any app if it was not set by a GitHub App. Pass -1 to explicitly
+          allow any app to set the status.
+        type: integer
+      context:
+        description: The name of the required check.
+        type: string
+    required:
+    - context
+    type: object
+  branchprotection.UserTeamAppList:
+    properties:
+      apps:
+        description: The list of app `slug`s with dismissal access
+        items:
+          type: string
+        type: array
+      teams:
+        description: The list of team `slug`s with dismissal access
+        items:
+          type: string
+        type: array
+      users:
+        description: The list of user `login`s with dismissal access
+        items:
+          type: string
+        type: array
+    type: object
+host: api.github.com
+info:
+  contact:
+    email: contact@krateoplatformops.io
+    name: Krateo Support
+    url: https://krateo.io
+  description: Wrapper around the GitHub Branch Protection API that normalizes response
+    fields for consistent reconciliation in KOG.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: GitHub BranchProtection Plugin API for Krateo Operator Generator (KOG)
+  version: "1.0"
+paths:
+  /api/{owner}/{repo}/branches/{branch}/protection:
+    delete:
+      description: 'Removes branch protection rules. Idempotent: returns 204 even
+        if branch was not protected.'
+      operationId: delete-branch-protection
+      parameters:
+      - description: Repository owner (user or organization)
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: Repository name
+        in: path
+        name: repo
+        required: true
+        type: string
+      - description: Branch name
+        in: path
+        name: branch
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/branchprotection.ErrorResponse'
+      summary: Delete branch protection
+    get:
+      description: Retrieves branch protection settings and normalizes the response
+        for drift-free reconciliation.
+      operationId: get-branch-protection
+      parameters:
+      - description: Repository owner (user or organization)
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: Repository name
+        in: path
+        name: repo
+        required: true
+        type: string
+      - description: Branch name
+        in: path
+        name: branch
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/branchprotection.BranchProtectionResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/branchprotection.ErrorResponse'
+      summary: Get branch protection
+    put:
+      consumes:
+      - application/json
+      description: Creates or updates branch protection rules. Used for both create
+        and update actions.
+      operationId: put-branch-protection
+      parameters:
+      - description: Repository owner (user or organization)
+        in: path
+        name: owner
+        required: true
+        type: string
+      - description: Repository name
+        in: path
+        name: repo
+        required: true
+        type: string
+      - description: Branch name
+        in: path
+        name: branch
+        required: true
+        type: string
+      - description: Branch protection settings
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/branchprotection.BranchProtectionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/branchprotection.BranchProtectionResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/branchprotection.ErrorResponse'
+      summary: Create or update branch protection
+schemes:
+- http
+swagger: "2.0"

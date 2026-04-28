@@ -1,0 +1,568 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "GitHub BranchProtection Plugin API for Krateo Operator Generator (KOG)",
+    "description": "Wrapper around the GitHub Branch Protection API that normalizes response fields for consistent reconciliation in KOG.",
+    "termsOfService": "http://swagger.io/terms/",
+    "contact": {
+      "name": "Krateo Support",
+      "url": "https://krateo.io",
+      "email": "contact@krateoplatformops.io"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://api.github.com/"
+    }
+  ],
+  "paths": {
+    "/api/{owner}/{repo}/branches/{branch}/protection": {
+      "get": {
+        "summary": "Get branch protection",
+        "description": "Retrieves branch protection settings and normalizes the response for drift-free reconciliation.",
+        "operationId": "get-branch-protection",
+        "parameters": [
+          {
+            "name": "owner",
+            "in": "path",
+            "description": "Repository owner (user or organization)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "in": "path",
+            "description": "Repository name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "branch",
+            "in": "path",
+            "description": "Branch name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/branchprotection.BranchProtectionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/branchprotection.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Create or update branch protection",
+        "description": "Creates or updates branch protection rules. Used for both create and update actions.",
+        "operationId": "put-branch-protection",
+        "parameters": [
+          {
+            "name": "owner",
+            "in": "path",
+            "description": "Repository owner (user or organization)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "in": "path",
+            "description": "Repository name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "branch",
+            "in": "path",
+            "description": "Branch name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Branch protection settings",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/branchprotection.BranchProtectionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/branchprotection.BranchProtectionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/branchprotection.ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "body"
+      },
+      "delete": {
+        "summary": "Delete branch protection",
+        "description": "Removes branch protection rules. Idempotent: returns 204 even if branch was not protected.",
+        "operationId": "delete-branch-protection",
+        "parameters": [
+          {
+            "name": "owner",
+            "in": "path",
+            "description": "Repository owner (user or organization)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "in": "path",
+            "description": "Repository name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "branch",
+            "in": "path",
+            "description": "Branch name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {}
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/branchprotection.ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "branchprotection.BranchProtectionRequest": {
+        "required": [
+          "enforce_admins",
+          "required_pull_request_reviews",
+          "required_status_checks",
+          "restrictions"
+        ],
+        "type": "object",
+        "properties": {
+          "allow_deletions": {
+            "type": "boolean",
+            "description": "Allows deletion of the protected branch by anyone with write access to the repository. Set to false to prevent deletion of the protected branch. Default: false."
+          },
+          "allow_force_pushes": {
+            "type": "boolean",
+            "description": "Permits force pushes to the protected branch by anyone with write access to the repository. Set to true to allow force pushes. Set to false or null to block force pushes. Default: false.",
+            "nullable": true
+          },
+          "allow_fork_syncing": {
+            "type": "boolean",
+            "description": "Whether users can pull changes from upstream when the branch is locked. Set to true to allow fork syncing. Set to false to prevent fork syncing. Default: false.",
+            "default": false
+          },
+          "block_creations": {
+            "type": "boolean",
+            "description": "If set to true, the restrictions branch protection settings which limits who can push will also block pushes which create new branches, unless the push is initiated by a user, team, or app which has the ability to push. Default: false."
+          },
+          "enforce_admins": {
+            "type": "boolean",
+            "description": "Enforce all configured restrictions for administrators. Set to `true` to enforce required status checks for repository administrators. Set to `null` to disable.",
+            "nullable": true
+          },
+          "lock_branch": {
+            "type": "boolean",
+            "description": "Whether to set the branch as read-only. If this is true, users will not be able to push to the branch. Default: false.",
+            "default": false
+          },
+          "required_conversation_resolution": {
+            "type": "boolean",
+            "description": "Requires all conversations on code to be resolved before a pull request can be merged into a branch that matches this rule. Set to false to disable. Default: false."
+          },
+          "required_linear_history": {
+            "type": "boolean",
+            "description": "Enforces a linear commit Git history, which prevents anyone from pushing merge commits to a branch. Set to true to enforce a linear commit history. Set to false to disable. Default: false."
+          },
+          "required_pull_request_reviews": {
+            "type": "object",
+            "description": "Require at least one approving review on a pull request, before merging. Set to `null` to disable.",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/branchprotection.RequiredPullRequestReviews"
+              }
+            ]
+          },
+          "required_status_checks": {
+            "type": "object",
+            "description": "Require status checks to pass before merging. Set to `null` to disable.",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/branchprotection.RequiredStatusChecks"
+              }
+            ]
+          },
+          "restrictions": {
+            "type": "object",
+            "description": "Restrict who can push to the protected branch. User, app, and team restrictions are only available for organization-owned repositories. Set to null to disable.",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/branchprotection.Restrictions"
+              }
+            ]
+          }
+        }
+      },
+      "branchprotection.BranchProtectionResponse": {
+        "type": "object",
+        "properties": {
+          "allow_deletions": {
+            "type": "boolean",
+            "description": "Whether deletion of the protected branch is allowed."
+          },
+          "allow_force_pushes": {
+            "type": "boolean",
+            "description": "Whether force pushes are permitted."
+          },
+          "allow_fork_syncing": {
+            "type": "boolean",
+            "description": "Whether users can pull changes from upstream when the branch is locked."
+          },
+          "block_creations": {
+            "type": "boolean",
+            "description": "Whether pushes that create new branches are blocked."
+          },
+          "enforce_admins": {
+            "type": "boolean",
+            "description": "Whether admins are subject to the branch protection rules."
+          },
+          "lock_branch": {
+            "type": "boolean",
+            "description": "Whether the branch is read-only."
+          },
+          "required_conversation_resolution": {
+            "type": "boolean",
+            "description": "Whether all conversations on code must be resolved before merging."
+          },
+          "required_linear_history": {
+            "type": "boolean",
+            "description": "Whether a linear commit Git history is enforced."
+          },
+          "required_pull_request_reviews": {
+            "type": "object",
+            "description": "Pull request review requirements.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/branchprotection.RequiredPullRequestReviewsResponse"
+              }
+            ]
+          },
+          "required_status_checks": {
+            "type": "object",
+            "description": "Require status checks to pass before merging.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/branchprotection.RequiredStatusChecks"
+              }
+            ]
+          },
+          "restrictions": {
+            "type": "object",
+            "description": "Push access restrictions.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/branchprotection.Restrictions"
+              }
+            ]
+          },
+          "url": {
+            "type": "string",
+            "description": "The URL of the branch protection resource."
+          }
+        }
+      },
+      "branchprotection.BypassAllowances": {
+        "type": "object",
+        "properties": {
+          "apps": {
+            "type": "array",
+            "description": "The list of app `slug`s allowed to bypass pull request requirements.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "teams": {
+            "type": "array",
+            "description": "The list of team `slug`s allowed to bypass pull request requirements.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "users": {
+            "type": "array",
+            "description": "The list of user `login`s allowed to bypass pull request requirements.",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "branchprotection.ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "documentation_url": {
+            "type": "string",
+            "description": "A URL to the documentation for this error."
+          },
+          "message": {
+            "type": "string",
+            "description": "A message describing the error."
+          }
+        }
+      },
+      "branchprotection.RequiredPullRequestReviews": {
+        "type": "object",
+        "properties": {
+          "bypass_pull_request_allowances": {
+            "type": "object",
+            "description": "Allow specific users, teams, or apps to bypass pull request requirements.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/branchprotection.BypassAllowances"
+              }
+            ]
+          },
+          "dismiss_stale_reviews": {
+            "type": "boolean",
+            "description": "Set to true if you want to automatically dismiss approving reviews when someone pushes a new commit."
+          },
+          "dismissal_restrictions": {
+            "type": "object",
+            "description": "Specify which users, teams, and apps can dismiss pull request reviews. Pass an empty `dismissal_restrictions` object to disable. User and team `dismissal_restrictions` are only available for organization-owned repositories. Omit this parameter for personal repositories.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/branchprotection.UserTeamAppList"
+              }
+            ]
+          },
+          "require_code_owner_reviews": {
+            "type": "boolean",
+            "description": "Blocks merging pull requests until code owners review them."
+          },
+          "require_last_push_approval": {
+            "type": "boolean",
+            "description": "Whether the most recent push must be approved by someone other than the person who pushed it. Default: false.",
+            "default": false
+          },
+          "required_approving_review_count": {
+            "type": "integer",
+            "description": "Specify the number of reviewers required to approve pull requests. Use a number between 1 and 6 or 0 to not require reviewers."
+          }
+        }
+      },
+      "branchprotection.RequiredPullRequestReviewsResponse": {
+        "type": "object",
+        "properties": {
+          "bypass_pull_request_allowances": {
+            "type": "object",
+            "description": "Users, teams, or apps allowed to bypass pull request requirements.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/branchprotection.BypassAllowances"
+              }
+            ]
+          },
+          "dismiss_stale_reviews": {
+            "type": "boolean",
+            "description": "Whether approving reviews are automatically dismissed when someone pushes a new commit."
+          },
+          "dismissal_restrictions": {
+            "type": "object",
+            "description": "Users, teams, and apps that can dismiss pull request reviews.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/branchprotection.UserTeamAppList"
+              }
+            ]
+          },
+          "require_code_owner_reviews": {
+            "type": "boolean",
+            "description": "Whether merging pull requests is blocked until code owners review them."
+          },
+          "require_last_push_approval": {
+            "type": "boolean",
+            "description": "Whether the most recent push must be approved by someone other than the person who pushed it."
+          },
+          "required_approving_review_count": {
+            "type": "integer",
+            "description": "The number of reviewers required to approve pull requests."
+          }
+        }
+      },
+      "branchprotection.RequiredStatusChecks": {
+        "required": [
+          "contexts",
+          "strict"
+        ],
+        "type": "object",
+        "properties": {
+          "checks": {
+            "type": "array",
+            "description": "The list of status checks to require in order to merge into this branch.",
+            "items": {
+              "$ref": "#/components/schemas/branchprotection.StatusCheck"
+            }
+          },
+          "contexts": {
+            "type": "array",
+            "description": "\"**Closing down notice**: The list of status checks to require in order to merge into this branch. If any of these checks have recently been set by a particular GitHub App, they will be required to come from that app in future for the branch to merge. Use `checks` instead of `contexts` for more fine-grained control.\"",
+            "items": {
+              "type": "string"
+            }
+          },
+          "strict": {
+            "type": "boolean",
+            "description": "Require branches to be up to date before merging."
+          }
+        }
+      },
+      "branchprotection.Restrictions": {
+        "required": [
+          "teams",
+          "users"
+        ],
+        "type": "object",
+        "properties": {
+          "apps": {
+            "type": "array",
+            "description": "The list of app slugs with push access.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "teams": {
+            "type": "array",
+            "description": "The list of team slugs with push access.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "users": {
+            "type": "array",
+            "description": "The list of user logins with push access.",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "branchprotection.StatusCheck": {
+        "required": [
+          "context"
+        ],
+        "type": "object",
+        "properties": {
+          "app_id": {
+            "type": "integer",
+            "description": "The ID of the GitHub App that must provide this check. Omit this field to automatically select the GitHub App that has recently provided this check, or any app if it was not set by a GitHub App. Pass -1 to explicitly allow any app to set the status."
+          },
+          "context": {
+            "type": "string",
+            "description": "The name of the required check."
+          }
+        }
+      },
+      "branchprotection.UserTeamAppList": {
+        "type": "object",
+        "properties": {
+          "apps": {
+            "type": "array",
+            "description": "The list of app `slug`s with dismissal access",
+            "items": {
+              "type": "string"
+            }
+          },
+          "teams": {
+            "type": "array",
+            "description": "The list of team `slug`s with dismissal access",
+            "items": {
+              "type": "string"
+            }
+          },
+          "users": {
+            "type": "array",
+            "description": "The list of user `login`s with dismissal access",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "x-original-swagger-version": "2.0"
+}

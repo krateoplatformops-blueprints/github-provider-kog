@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-branchprotection
+data:
+  branchprotection.yaml: |
+{{ tpl (.Files.Get "assets/branchprotection.yaml") . | indent 4 }}

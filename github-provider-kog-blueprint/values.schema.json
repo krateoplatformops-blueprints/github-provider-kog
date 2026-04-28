@@ -2,6 +2,20 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "additionalProperties": true,
   "properties": {
+    "github-provider-kog-branchprotection-blueprint": {
+      "additionalProperties": false,
+      "description": "Configuration for the BranchProtection Blueprint dependency.",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "description": "Enable the BranchProtection Blueprint dependency.",
+          "title": "enabled",
+          "type": "boolean"
+        }
+      },
+      "title": "github-provider-kog-branchprotection-blueprint",
+      "type": "object"
+    },
     "github-provider-kog-collaborator-blueprint": {
       "additionalProperties": false,
       "description": "Configuration for the Collaborator Blueprint dependency.",

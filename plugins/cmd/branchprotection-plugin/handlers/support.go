@@ -1,0 +1,141 @@
+package branchprotection
+
+import (
+	"encoding/json"
+	"fmt"
+)
+
+// ensureGitHubRequiredFields adds the four fields that the GitHub PUT endpoint
+// requires (required_status_checks, enforce_admins, required_pull_request_reviews,
+// restrictions) with null/false defaults when they are absent from the incoming body.
+// This lets users omit fields they don't care about in their Kubernetes CR.
+func ensureGitHubRequiredFields(body []byte) ([]byte, error) {
+	var data map[string]interface{}
+	if err := json.Unmarshal(body, &data); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal request body: %w", err)
+	}
+
+	if _, ok := data["required_status_checks"]; !ok {
+		data["required_status_checks"] = nil
+	}
+	if _, ok := data["enforce_admins"]; !ok {
+		data["enforce_admins"] = false
+	}
+	if _, ok := data["required_pull_request_reviews"]; !ok {
+		data["required_pull_request_reviews"] = nil
+	}
+	if _, ok := data["restrictions"]; !ok {
+		data["restrictions"] = nil
+	}
+
+	return json.Marshal(data)
+}
+
+// normalizeGetResponse transforms the raw GitHub branch protection GET/PUT response
+// into the structure that matches the plugin request body schema, so that the
+// rest-dynamic-controller can perform correct drift detection.
+//
+// Transformations applied:
+//   - boolean-in-object fields (e.g. {"enabled": true}) are unwrapped to plain booleans
+//   - server-only fields (required_signatures, url sub-fields) are stripped
+//   - user/team/app arrays with full objects are flattened to login/slug strings
+func normalizeGetResponse(body []byte) ([]byte, error) {
+	var data map[string]interface{}
+	if err := json.Unmarshal(body, &data); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal GitHub response: %w", err)
+	}
+
+	// Unwrap all boolean-in-object fields to plain booleans.
+	for _, field := range []string{
+		"enforce_admins",
+		"required_linear_history",
+		"allow_force_pushes",
+		"allow_deletions",
+		"block_creations",
+		"required_conversation_resolution",
+		"lock_branch",
+		"allow_fork_syncing",
+	} {
+		unwrapEnabled(data, field)
+	}
+
+	// required_signatures is a server-managed field not present in request body.
+	delete(data, "required_signatures")
+
+	// Normalize required_pull_request_reviews sub-object.
+	if prr, ok := data["required_pull_request_reviews"].(map[string]interface{}); ok {
+		delete(prr, "url")
+		normalizeUserTeamAppObj(prr, "dismissal_restrictions")
+		normalizeUserTeamAppObj(prr, "bypass_pull_request_allowances")
+	}
+
+	// Normalize required_status_checks: strip server-only URL fields.
+	if rsc, ok := data["required_status_checks"].(map[string]interface{}); ok {
+		delete(rsc, "url")
+		delete(rsc, "contexts_url")
+	}
+
+	// Normalize restrictions: full user/team/app objects -> login/slug strings.
+	normalizeUserTeamAppObj(data, "restrictions")
+
+	return json.Marshal(data)
+}
+
+// unwrapEnabled converts {"enabled": bool, ...} to just bool in data[field].
+// If the field is not an object with an "enabled" key, it is left unchanged.
+func unwrapEnabled(data map[string]interface{}, field string) {
+	obj, ok := data[field].(map[string]interface{})
+	if !ok {
+		return
+	}
+	enabled, ok := obj["enabled"].(bool)
+	if !ok {
+		return
+	}
+	data[field] = enabled
+}
+
+// normalizeUserTeamAppObj flattens the users/teams/apps arrays inside data[field]
+// from full GitHub API objects to plain login/slug strings, and strips server-only
+// URL sub-fields.
+func normalizeUserTeamAppObj(data map[string]interface{}, field string) {
+	obj, ok := data[field].(map[string]interface{})
+	if !ok {
+		return
+	}
+
+	// Strip server-only URL fields.
+	delete(obj, "url")
+	delete(obj, "users_url")
+	delete(obj, "teams_url")
+
+	// users: [{login: "x", ...}] -> ["x"]
+	if arr, ok := obj["users"].([]interface{}); ok {
+		obj["users"] = extractField(arr, "login")
+	}
+	// teams: [{slug: "x", ...}] -> ["x"]
+	if arr, ok := obj["teams"].([]interface{}); ok {
+		obj["teams"] = extractField(arr, "slug")
+	}
+	// apps: [{slug: "x", ...}] -> ["x"]
+	if arr, ok := obj["apps"].([]interface{}); ok {
+		obj["apps"] = extractField(arr, "slug")
+	}
+}
+
+// extractField extracts the named string field from each element of an interface slice.
+// Elements that are already strings are passed through as-is.
+func extractField(arr []interface{}, field string) []string {
+	result := make([]string, 0, len(arr))
+	for _, item := range arr {
+		switch v := item.(type) {
+		case string:
+			result = append(result, v)
+		case map[string]interface{}:
+			if s, ok := v[field].(string); ok {
+				result = append(result, s)
+			}
+		}
+	}
+	return result
+}

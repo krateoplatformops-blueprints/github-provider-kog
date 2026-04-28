@@ -12,6 +12,7 @@ This provider allows you to manage GitHub resources such as repositories, collab
   - [Single resource installation](#single-resource-installation)
 - [Supported resources](#supported-resources)
   - [Resource details](#resource-details)
+    - [BranchProtection](#branchprotection)
     - [Repo](#repo)
     - [Collaborator](#collaborator)
     - [TeamRepo](#teamrepo)
@@ -95,12 +96,13 @@ helm install github-provider-kog-repo github-provider-kog-repo \
 
 This chart supports the following resources and operations:
 
-| Resource     | Get  | Create | Update | Delete |
-|--------------|------|--------|--------|--------|
-| Collaborator | ✅   | ✅     | ✅     | ✅     |
-| Repo         | ✅   | ✅     | ✅     | ✅     |
-| TeamRepo     | ✅   | ✅     | ✅     | ✅     |
-| Workflow     | 🚫 Not applicable   | ✅     | 🚫 Not applicable    | 🚫 Not applicable     |
+| Resource        | Get  | Create | Update | Delete |
+|-----------------|------|--------|--------|--------|
+| BranchProtection | ✅   | ✅     | ✅     | ✅     |
+| Collaborator    | ✅   | ✅     | ✅     | ✅     |
+| Repo            | ✅   | ✅     | ✅     | ✅     |
+| TeamRepo        | ✅   | ✅     | ✅     | ✅     |
+| Workflow        | 🚫 Not applicable   | ✅     | 🚫 Not applicable    | 🚫 Not applicable     |
 | RunnerGroup     | ✅   | ✅     | ✅     | ✅     |
 
 > [!NOTE]  
@@ -109,6 +111,49 @@ This chart supports the following resources and operations:
 The resources listed above are Custom Resources (CRs) defined in the `github.ogen.krateo.io` API group. They are used to manage GitHub resources in a Kubernetes-native way, allowing you to create, update, and delete GitHub resources using Kubernetes manifests.
 
 ### Resource details
+
+#### BranchProtection
+
+The `BranchProtection` resource allows you to manage branch protection rules for GitHub repositories.
+You can enforce policies such as requiring pull request reviews, status checks, linear history, and restricting who can push to a branch.
+
+This resource uses a plugin to normalize the GitHub API response, since GitHub returns boolean fields (e.g., `enforce_admins`, `allow_force_pushes`) wrapped in objects like `{ "enabled": true }` rather than as plain booleans. The plugin unwraps these transparently so the controller can perform reconciliation without misleading drifts detected due to differences in the API response and the desired state defined in the CRs.
+
+GitHub uses `PUT` for both creation and update of branch protection, making this resource fully idempotent.
+
+An example of a BranchProtection resource is:
+```yaml
+apiVersion: github.ogen.krateo.io/v1alpha1
+kind: BranchProtection
+metadata:
+  name: test-branchprotection
+  namespace: default
+  annotations:
+    krateo.io/connector-verbose: "true"
+spec:
+  configurationRef:
+    name: my-branchprotection-config
+    namespace: default
+  owner: krateoplatformops-test
+  repo: branchprotection-tester
+  branch: main
+  enforce_admins: true
+  required_linear_history: true
+  allow_force_pushes: false
+  allow_deletions: false
+  required_status_checks:
+    strict: true
+    contexts: []
+  required_pull_request_reviews:
+    required_approving_review_count: 1
+    dismiss_stale_reviews: true
+    require_code_owner_reviews: false
+    require_last_push_approval: false
+  restrictions:
+    users: []
+    teams: []
+    apps: []
+```
 
 #### Repo
 
