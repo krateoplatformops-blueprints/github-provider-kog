@@ -119,6 +119,18 @@ const docTemplate = `{
                             "$ref": "#/definitions/branchprotection.BranchProtectionResponse"
                         }
                     },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/branchprotection.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/branchprotection.ErrorResponse"
+                        }
+                    },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
@@ -428,7 +440,6 @@ const docTemplate = `{
         "branchprotection.RequiredStatusChecks": {
             "type": "object",
             "required": [
-                "contexts",
                 "strict"
             ],
             "properties": {
@@ -437,13 +448,6 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/branchprotection.StatusCheck"
-                    }
-                },
-                "contexts": {
-                    "description": "\"**Closing down notice**: The list of status checks to require in order to merge into this branch. If any of these checks have recently been set by a particular GitHub App, they will be required to come from that app in future for the branch to merge. Use ` + "`" + `checks` + "`" + ` instead of ` + "`" + `contexts` + "`" + ` for more fine-grained control.\"",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
                     }
                 },
                 "strict": {

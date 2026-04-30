@@ -8,7 +8,6 @@ import (
 // ensureGitHubRequiredFields adds the four fields that the GitHub PUT endpoint
 // requires (required_status_checks, enforce_admins, required_pull_request_reviews,
 // restrictions) with null/false defaults when they are absent from the incoming body.
-// This lets users omit fields they don't care about in their Kubernetes CR.
 func ensureGitHubRequiredFields(body []byte) ([]byte, error) {
 	var data map[string]interface{}
 	if err := json.Unmarshal(body, &data); err != nil {
@@ -69,10 +68,24 @@ func normalizeGetResponse(body []byte) ([]byte, error) {
 		normalizeUserTeamAppObj(prr, "bypass_pull_request_allowances")
 	}
 
-	// Normalize required_status_checks: strip server-only URL fields.
+	// Normalize required_status_checks: strip server-only URL fields and fix
+	// app_id representation. GitHub stores app_id=-1 ("any app") as null in
+	// its GET response; convert null back to -1 to match the desired CR state.
+	// Otherswise, the presence of app_id in the response (even as null) would cause
+	// perpetual drift when the user sets app_id=-1 in their CR.
 	if rsc, ok := data["required_status_checks"].(map[string]interface{}); ok {
 		delete(rsc, "url")
 		delete(rsc, "contexts_url")
+		if checks, ok := rsc["checks"].([]interface{}); ok {
+			for _, item := range checks {
+				if c, ok := item.(map[string]interface{}); ok && c["app_id"] == nil {
+					c["app_id"] = float64(-1)
+				}
+			}
+		}
+
+		// Delete contexts field if present, since we use checks instead and contexts is deprecated by GitHub.
+		delete(rsc, "contexts")
 	}
 
 	// Normalize restrictions: full user/team/app objects -> login/slug strings.

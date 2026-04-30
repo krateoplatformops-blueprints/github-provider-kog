@@ -141,6 +141,8 @@ func (h *getHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // @Accept       json
 // @Produce      json
 // @Success      200  {object}  branchprotection.BranchProtectionResponse
+// @Failure      403  {object}  branchprotection.ErrorResponse
+// @Failure      404  {object}  branchprotection.ErrorResponse
 // @Failure      422  {object}  branchprotection.ErrorResponse
 // @Router       /api/{owner}/{repo}/branches/{branch}/protection [put]
 func (h *putHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {

@@ -1,7 +1,7 @@
 apiVersion: github.ogen.krateo.io/v1alpha1
 kind: BranchProtection
 metadata:
-  name: test-branchprotection-1
+  name: test-branchprotection-pr-dismissal-restrictions
   namespace: default
   annotations:
     krateo.io/connector-verbose: "true"
@@ -10,22 +10,18 @@ spec:
     name: my-branchprotection-config
     namespace: default
   owner: krateoplatformops-test
-  repo: branchprotection-tester
+  repo: branchprotection-tester-07
   branch: main
   enforce_admins: true
-  required_linear_history: true
-  allow_force_pushes: true
-  allow_deletions: false
   required_status_checks:
-    strict: true
+    strict: false
     contexts: []
   required_pull_request_reviews:
-    required_approving_review_count: 4
+    required_approving_review_count: 2
     dismiss_stale_reviews: true
-    require_code_owner_reviews: false
-    require_last_push_approval: false
+    dismissal_restrictions:
+      users:
+        - vicentinileonardo
   restrictions:
-    users:
-      - vicentinileonardo
+    users: []
     teams: []
-    apps: []
