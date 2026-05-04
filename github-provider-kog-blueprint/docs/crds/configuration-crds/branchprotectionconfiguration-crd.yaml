@@ -3,11 +3,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.18.0
-  creationTimestamp: "2026-04-28T12:32:25Z"
-  generation: 1
   name: branchprotectionconfigurations.github.ogen.krateo.io
-  resourceVersion: "225183"
-  uid: ddda1f92-cfd6-47ef-96d9-dcaa6c1ebe4a
 spec:
   conversion:
     strategy: None

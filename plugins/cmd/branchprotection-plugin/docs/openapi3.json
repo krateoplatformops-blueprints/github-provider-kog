@@ -485,6 +485,7 @@
       },
       "branchprotection.RequiredStatusChecks": {
         "required": [
+          "checks",
           "strict"
         ],
         "type": "object",

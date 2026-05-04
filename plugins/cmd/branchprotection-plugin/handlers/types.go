@@ -34,7 +34,9 @@ type RequiredStatusChecks struct {
 	// Require branches to be up to date before merging.
 	Strict bool `json:"strict" validate:"required"`
 	// The list of status checks to require in order to merge into this branch.
-	Checks []StatusCheck `json:"checks,omitempty"`
+	Checks []StatusCheck `json:"checks,omitempty" validate:"required"`
+	// Note: `contexts` field is deprectaed by GitHub API in favor of `checks`.
+	// Not supported by GitHub Provider KOG.
 }
 
 // The list of status checks to require in order to merge into this branch.

@@ -27,6 +27,28 @@ func ensureGitHubRequiredFields(body []byte) ([]byte, error) {
 		data["restrictions"] = nil
 	}
 
+	// Make sure that if `required_status_checks` is present then both `strict` and `checks` fields are present,
+	// otherwise return errors
+	if rsc, ok := data["required_status_checks"].(map[string]interface{}); ok {
+		if _, ok := rsc["strict"]; !ok {
+			return nil, fmt.Errorf("required_status_checks is present but missing required field 'strict'")
+		}
+		if _, ok := rsc["checks"]; !ok {
+			return nil, fmt.Errorf("required_status_checks is present but missing required field 'checks'")
+		}
+	}
+
+	// Make sure that if `restrictions` is present then both `teams` and `users` fields are present,
+	// otherwise return errors
+	if res, ok := data["restrictions"].(map[string]interface{}); ok {
+		if _, ok := res["teams"]; !ok {
+			return nil, fmt.Errorf("restrictions is present but missing required field 'teams'")
+		}
+		if _, ok := res["users"]; !ok {
+			return nil, fmt.Errorf("restrictions is present but missing required field 'users'")
+		}
+	}
+
 	return json.Marshal(data)
 }
 
@@ -84,7 +106,7 @@ func normalizeGetResponse(body []byte) ([]byte, error) {
 			}
 		}
 
-		// Delete contexts field if present, since we use checks instead and contexts is deprecated by GitHub.
+		// Delete `contexts` field if present, since we use `checks` instead and contexts is `deprecated` by GitHub.
 		delete(rsc, "contexts")
 	}
 
@@ -121,6 +143,7 @@ func normalizeUserTeamAppObj(data map[string]interface{}, field string) {
 	delete(obj, "url")
 	delete(obj, "users_url")
 	delete(obj, "teams_url")
+	delete(obj, "apps_url")
 
 	// users: [{login: "x", ...}] -> ["x"]
 	if arr, ok := obj["users"].([]interface{}); ok {

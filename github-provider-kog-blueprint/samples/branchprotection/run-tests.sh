@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# BranchProtection test suite.
+# BranchProtection test suite, designed for manual execution by developers during local testing and debugging.
 #
 # Test cases are discovered automatically from the filesystem:
 #   test-[0-9][0-9]-<description>.yaml  →  BranchProtection CR

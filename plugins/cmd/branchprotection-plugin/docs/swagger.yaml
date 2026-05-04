@@ -209,6 +209,7 @@ definitions:
         description: Require branches to be up to date before merging.
         type: boolean
     required:
+    - checks
     - strict
     type: object
   branchprotection.Restrictions:

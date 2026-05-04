@@ -117,16 +117,14 @@ The resources listed above are Custom Resources (CRs) defined in the `github.oge
 The `BranchProtection` resource allows you to manage branch protection rules for GitHub repositories.
 You can enforce policies such as requiring pull request reviews, status checks, linear history, and restricting who can push to a branch.
 
-This resource uses a plugin to normalize the GitHub API response, since GitHub returns boolean fields (e.g., `enforce_admins`, `allow_force_pushes`) wrapped in objects like `{ "enabled": true }` rather than as plain booleans. The plugin unwraps these transparently so the controller can perform reconciliation without misleading drifts detected due to differences in the API response and the desired state defined in the CRs.
-
-GitHub uses `PUT` for both creation and update of branch protection, making this resource fully idempotent.
+This resource uses a plugin (a proxy service deployed by the chart) to normalize the GitHub API response, since GitHub returns boolean fields (e.g., `enforce_admins`, `allow_force_pushes`) wrapped in objects like `{ "enabled": true }` rather than as plain booleans. The plugin unwraps these transparently so the controller can perform reconciliation without misleading drifts detected due to differences in the API response and the desired state defined in the CRs.
 
 An example of a BranchProtection resource is:
 ```yaml
 apiVersion: github.ogen.krateo.io/v1alpha1
 kind: BranchProtection
 metadata:
-  name: test-branchprotection
+  name: test-branchprotection-full
   namespace: default
   annotations:
     krateo.io/connector-verbose: "true"
@@ -135,25 +133,55 @@ spec:
     name: my-branchprotection-config
     namespace: default
   owner: krateoplatformops-test
-  repo: branchprotection-tester
+  repo: branchprotection-tester-02
   branch: main
-  enforce_admins: true
-  required_linear_history: true
-  allow_force_pushes: false
   allow_deletions: false
+  allow_force_pushes: false
+  allow_fork_syncing: false
+  block_creations: true
+  enforce_admins: true
+  lock_branch: false
+  required_conversation_resolution: true
+  required_linear_history: true
   required_status_checks:
     strict: true
-    contexts: []
+    checks:
+      - context: "ci/build"
+        app_id: -1
+      - context: "ci/lint"
+        app_id: -1
+      - context: "security-scan"
+        app_id: -1
+      - context: "unit-tests"
+        app_id: -1
   required_pull_request_reviews:
-    required_approving_review_count: 1
+    required_approving_review_count: 2
     dismiss_stale_reviews: true
-    require_code_owner_reviews: false
-    require_last_push_approval: false
+    require_code_owner_reviews: true
+    require_last_push_approval: true
+    dismissal_restrictions:
+      users:
+        - vicentinileonardo
+      teams: []
+      apps: []
+    bypass_pull_request_allowances:
+      users:
+        - vicentinileonardo
+      teams: [] 
+      apps: []
   restrictions:
-    users: []
+    users:
+      - vicentinileonardo
     teams: []
     apps: []
 ```
+
+Other examples of BranchProtection resources with different settings can be found in the [/samples/branchprotection](./github-provider-kog-blueprint/samples/branchprotection/) folder of the main chart.
+
+You can find more details about the `BranchProtection` resource in the [Branch Protection documentation](https://docs.github.com/en/rest/branches/branch-protection?apiVersion=2022-11-28) of the GitHub REST API.
+
+> [!NOTE]  
+> The field `required_status_checks.contexts` which is available in the GitHub REST API but marked as deprecated is NOT supported by this provider in favor of the `required_status_checks.checks` field, which allows you to specify the status checks with more details (e.g., `app_id` of the check).
 
 #### Repo
 

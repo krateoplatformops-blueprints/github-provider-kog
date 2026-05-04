@@ -440,6 +440,7 @@ const docTemplate = `{
         "branchprotection.RequiredStatusChecks": {
             "type": "object",
             "required": [
+                "checks",
                 "strict"
             ],
             "properties": {

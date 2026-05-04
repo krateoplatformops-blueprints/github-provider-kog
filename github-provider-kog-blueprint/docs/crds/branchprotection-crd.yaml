@@ -3,11 +3,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.18.0
-  creationTimestamp: "2026-04-28T13:44:09Z"
-  generation: 1
   name: branchprotections.github.ogen.krateo.io
-  resourceVersion: "240310"
-  uid: 9e901ab6-78a8-4c96-9089-234135c4793a
 spec:
   conversion:
     strategy: None
@@ -62,6 +58,7 @@ spec:
                 description: 'Permits force pushes to the protected branch by anyone
                   with write access to the repository. Set to true to allow force
                   pushes. Set to false or null to block force pushes. Default: false.'
+                nullable: true
                 type: boolean
               allow_fork_syncing:
                 default: false
@@ -96,6 +93,7 @@ spec:
                 description: Enforce all configured restrictions for administrators.
                   Set to `true` to enforce required status checks for repository administrators.
                   Set to `null` to disable.
+                nullable: true
                 type: boolean
               lock_branch:
                 default: false
@@ -121,6 +119,7 @@ spec:
               required_pull_request_reviews:
                 description: Require at least one approving review on a pull request,
                   before merging. Set to `null` to disable.
+                nullable: true
                 properties:
                   bypass_pull_request_allowances:
                     description: Allow specific users, teams, or apps to bypass pull
@@ -191,6 +190,7 @@ spec:
               required_status_checks:
                 description: Require status checks to pass before merging. Set to
                   `null` to disable.
+                nullable: true
                 properties:
                   checks:
                     description: The list of status checks to require in order to
@@ -212,27 +212,15 @@ spec:
                       - context
                       type: object
                     type: array
-                  contexts:
-                    description: '"**Closing down notice**: The list of status checks
-                      to require in order to merge into this branch. If any of these
-                      checks have recently been set by a particular GitHub App, they
-                      will be required to come from that app in future for the branch
-                      to merge. Use `checks` instead of `contexts` for more fine-grained
-                      control."'
-                    items:
-                      type: string
-                    type: array
                   strict:
                     description: Require branches to be up to date before merging.
                     type: boolean
-                required:
-                - contexts
-                - strict
                 type: object
               restrictions:
                 description: Restrict who can push to the protected branch. User,
                   app, and team restrictions are only available for organization-owned
                   repositories. Set to null to disable.
+                nullable: true
                 properties:
                   apps:
                     description: The list of app slugs with push access.
@@ -249,9 +237,6 @@ spec:
                     items:
                       type: string
                     type: array
-                required:
-                - teams
-                - users
                 type: object
             required:
             - branch
@@ -310,26 +295,3 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    categories:
-    - branchprotection
-    - restresources
-    - rr
-    kind: BranchProtection
-    listKind: BranchProtectionList
-    plural: branchprotections
-    singular: branchprotection
-  conditions:
-  - lastTransitionTime: "2026-04-28T13:44:09Z"
-    message: no conflicts found
-    reason: NoConflicts
-    status: "True"
-    type: NamesAccepted
-  - lastTransitionTime: "2026-04-28T13:44:09Z"
-    message: the initial names have been accepted
-    reason: InitialNamesAccepted
-    status: "True"
-    type: Established
-  storedVersions:
-  - v1alpha1

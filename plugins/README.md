@@ -313,7 +313,7 @@ It retrieves repository permissions for a specific team.
 
 ### BranchProtection
 
-All "BranchProtection" endpoints normalize the GitHub Branch Protection API response so that boolean fields, which GitHub wraps in `{ "enabled": bool }` objects — are returned as plain booleans, enabling correct reconciliation by the `rest-dynamic-controller`.
+All "BranchProtection" endpoints normalize the GitHub Branch Protection API response so that boolean fields, which GitHub wraps in `{ "enabled": bool }` objects, are returned as plain booleans, enabling correct reconciliation by the `rest-dynamic-controller`.
 
 #### Get Branch Protection
 
@@ -327,7 +327,7 @@ Retrieves branch protection settings for the given branch and normalizes the res
 **Why This Endpoint Exists**:
 - GitHub returns boolean fields (e.g., `enforce_admins`, `allow_force_pushes`) wrapped in objects like `{ "enabled": true }`. The plugin unwraps these into plain booleans matching the request body format.
 - User/team/app arrays in `restrictions` and `required_pull_request_reviews` are returned as full objects; the plugin flattens them to string arrays (login/slug) matching the PUT request format.
-- Server-only URL fields (`url`, `_links`) are stripped from nested objects.
+- Server-only URL fields (e.g., `app_url`, `url`) are stripped from nested objects.
 
 **Path parameters**:
 - `owner` (string, required): Repository owner (user or organization)
@@ -348,8 +348,8 @@ PUT /api/{owner}/{repo}/branches/{branch}/protection
 Creates or updates branch protection rules. GitHub's PUT is idempotent — this endpoint is used for both `create` and `update` actions in the RestDefinition.
 
 **Why This Endpoint Exists**:
-- GitHub requires `required_status_checks`, `enforce_admins`, `required_pull_request_reviews`, and `restrictions` to always be present in the request body (even as `null`). The plugin fills in missing required fields with safe defaults before forwarding.
 - The response is normalized identically to the GET handler to ensure the controller sees no drift immediately after creation.
+- Additional validation is performed. For instance, if `required_status_checks` is present, both `strict` and `checks` fields are included, and if `restrictions` is present, both `teams` and `users` fields are included.
 
 **Path parameters**:
 - `owner` (string, required): Repository owner
@@ -360,6 +360,8 @@ Creates or updates branch protection rules. GitHub's PUT is idempotent — this 
 
 **Responses**:
 - `200 OK`: Normalized branch protection settings
+- `403 Forbidden`
+- `404 Not Found`
 - `422 Unprocessable Entity`: Validation error from GitHub
 
 #### Delete Branch Protection

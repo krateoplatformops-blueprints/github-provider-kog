@@ -321,6 +321,7 @@ components:
           description: The number of reviewers required to approve pull requests.
     branchprotection.RequiredStatusChecks:
       required:
+        - checks
         - strict
       type: object
       properties:

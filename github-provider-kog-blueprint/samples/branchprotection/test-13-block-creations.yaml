@@ -14,13 +14,10 @@ spec:
   branch: main
   enforce_admins: true
   block_creations: true
-  required_status_checks:
-    strict: false
-    contexts: []
+  required_status_checks: null
   required_pull_request_reviews:
     required_approving_review_count: 1
   restrictions:
     users:
       - vicentinileonardo
-    teams:
-      - test-team
+    teams: []

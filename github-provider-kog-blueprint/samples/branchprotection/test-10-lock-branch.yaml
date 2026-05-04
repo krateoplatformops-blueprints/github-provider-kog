@@ -15,9 +15,7 @@ spec:
   enforce_admins: true
   lock_branch: true
   allow_fork_syncing: true
-  required_status_checks:
-    strict: false
-    contexts: []
+  required_status_checks: null
   required_pull_request_reviews: {}
   restrictions:
     users: []
