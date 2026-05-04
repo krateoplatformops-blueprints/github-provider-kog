@@ -2,9 +2,8 @@ apiVersion: v2
 name: github-provider-kog-branchprotection
 description: A Helm chart for deploying the GitHub KOG BranchProtection resource.
 type: application
-#version: BRANCHPROTECTION_CHART_VERSION
-version: 0.0.1
-#appVersion: BRANCHPROTECTION_APP_VERSION
+version: BRANCHPROTECTION_CHART_VERSION
+appVersion: BRANCHPROTECTION_APP_VERSION
 
 home: https://krateo.io
 icon: "https://github.com/krateoplatformops/krateo/blob/main/docs/media/logo.svg"
