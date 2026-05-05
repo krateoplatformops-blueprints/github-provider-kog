@@ -6,3 +6,4 @@ It acts as a umbrella chart and it includes all the other blueprints:
 - github-provider-kog-runnergroup-blueprint
 - github-provider-kog-teamrepo-blueprint
 - github-provider-kog-workflow-blueprint
+- github-provider-kog-branchprotection-blueprint

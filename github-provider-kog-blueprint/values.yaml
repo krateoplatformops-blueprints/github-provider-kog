@@ -1,5 +1,17 @@
 # @schema
 # type: object
+# description: Configuration for the BranchProtection Blueprint dependency.
+# @schema
+github-provider-kog-branchprotection-blueprint:
+  # @schema
+  # type: boolean
+  # description: Enable the BranchProtection Blueprint dependency.
+  # default: true
+  # @schema
+  enabled: true
+
+# @schema
+# type: object
 # description: Configuration for the Collaborator Blueprint dependency.
 # @schema
 github-provider-kog-collaborator-blueprint:

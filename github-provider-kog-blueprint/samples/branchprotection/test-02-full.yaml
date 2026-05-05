@@ -1,0 +1,53 @@
+apiVersion: github.ogen.krateo.io/v1alpha1
+kind: BranchProtection
+metadata:
+  name: test-branchprotection-full
+  namespace: default
+  annotations:
+    krateo.io/connector-verbose: "true"
+spec:
+  configurationRef:
+    name: my-branchprotection-config
+    namespace: default
+  owner: krateoplatformops-test
+  repo: branchprotection-tester-02
+  branch: main
+  allow_deletions: false
+  allow_force_pushes: false
+  allow_fork_syncing: false
+  block_creations: true
+  enforce_admins: true
+  lock_branch: false
+  required_conversation_resolution: true
+  required_linear_history: true
+  required_status_checks:
+    strict: true
+    checks:
+      - context: "ci/build"
+        app_id: -1
+      - context: "ci/lint"
+        app_id: -1
+      - context: "security-scan"
+        app_id: -1
+      - context: "unit-tests"
+        app_id: -1
+  required_pull_request_reviews:
+    required_approving_review_count: 2
+    dismiss_stale_reviews: true
+    require_code_owner_reviews: true
+    require_last_push_approval: true
+    dismissal_restrictions:
+      users:
+        - vicentinileonardo
+      teams: []
+      apps: []
+    bypass_pull_request_allowances:
+      users:
+        - vicentinileonardo
+      teams: [] 
+      apps: []
+  restrictions:
+    users:
+      - vicentinileonardo
+    teams: []
+    apps: []

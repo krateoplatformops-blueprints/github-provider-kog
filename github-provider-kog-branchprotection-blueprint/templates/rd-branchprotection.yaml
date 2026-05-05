@@ -1,0 +1,24 @@
+kind: RestDefinition
+apiVersion: ogen.krateo.io/v1alpha1
+metadata:
+  name: {{ .Release.Name }}-branchprotection
+spec:
+  oasPath: configmap://{{ .Release.Namespace }}/{{ .Release.Name }}-branchprotection/branchprotection.yaml
+  resourceGroup: github.ogen.krateo.io
+  resource:
+    kind: BranchProtection
+    additionalStatusFields:
+      - url
+    verbsDescription:
+    - action: create
+      method: PUT
+      path: /api/{owner}/{repo}/branches/{branch}/protection  # plugin endpoint
+    - action: update
+      method: PUT
+      path: /api/{owner}/{repo}/branches/{branch}/protection  # plugin endpoint
+    - action: get
+      method: GET
+      path: /api/{owner}/{repo}/branches/{branch}/protection  # plugin endpoint
+    - action: delete
+      method: DELETE
+      path: /api/{owner}/{repo}/branches/{branch}/protection  # plugin endpoint

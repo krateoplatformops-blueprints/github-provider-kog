@@ -1,0 +1,22 @@
+apiVersion: github.ogen.krateo.io/v1alpha1
+kind: BranchProtection
+metadata:
+  name: test-branchprotection-lock-branch
+  namespace: default
+  annotations:
+    krateo.io/connector-verbose: "true"
+spec:
+  configurationRef:
+    name: my-branchprotection-config
+    namespace: default
+  owner: krateoplatformops-test
+  repo: branchprotection-tester-10
+  branch: main
+  enforce_admins: true
+  lock_branch: true
+  allow_fork_syncing: true
+  required_status_checks: null
+  required_pull_request_reviews: {}
+  restrictions:
+    users: []
+    teams: []

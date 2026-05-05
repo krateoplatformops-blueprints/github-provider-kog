@@ -1,0 +1,23 @@
+apiVersion: github.ogen.krateo.io/v1alpha1
+kind: BranchProtection
+metadata:
+  name: test-branchprotection-force-push-deletions
+  namespace: default
+  annotations:
+    krateo.io/connector-verbose: "true"
+spec:
+  configurationRef:
+    name: my-branchprotection-config
+    namespace: default
+  owner: krateoplatformops-test
+  repo: branchprotection-tester-11
+  branch: main
+  enforce_admins: false
+  allow_force_pushes: true
+  allow_deletions: true
+  required_status_checks: null
+  required_pull_request_reviews:
+    required_approving_review_count: 0
+  restrictions:
+    users: []
+    teams: []

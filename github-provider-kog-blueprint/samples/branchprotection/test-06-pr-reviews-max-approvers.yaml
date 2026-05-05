@@ -1,0 +1,24 @@
+apiVersion: github.ogen.krateo.io/v1alpha1
+kind: BranchProtection
+metadata:
+  name: test-branchprotection-max-approvers
+  namespace: default
+  annotations:
+    krateo.io/connector-verbose: "true"
+spec:
+  configurationRef:
+    name: my-branchprotection-config
+    namespace: default
+  owner: krateoplatformops-test
+  repo: branchprotection-tester-06
+  branch: main
+  enforce_admins: true
+  required_status_checks: null
+  required_pull_request_reviews:
+    required_approving_review_count: 6
+    dismiss_stale_reviews: true
+    require_code_owner_reviews: true
+    require_last_push_approval: true
+  restrictions:
+    users: []
+    teams: []

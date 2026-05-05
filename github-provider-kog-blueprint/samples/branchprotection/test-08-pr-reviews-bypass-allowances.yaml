@@ -1,0 +1,28 @@
+apiVersion: github.ogen.krateo.io/v1alpha1
+kind: BranchProtection
+metadata:
+  name: test-branchprotection-pr-bypass-allowances
+  namespace: default
+  annotations:
+    krateo.io/connector-verbose: "true"
+spec:
+  configurationRef:
+    name: my-branchprotection-config
+    namespace: default
+  owner: krateoplatformops-test
+  repo: branchprotection-tester-08
+  branch: main
+  enforce_admins: true
+  required_status_checks: null
+  required_pull_request_reviews:
+    required_approving_review_count: 1
+    bypass_pull_request_allowances:
+      users:
+        - release-bot
+      teams:
+        - security-team
+      apps:
+        - dependabot
+  restrictions:
+    users: []
+    teams: []

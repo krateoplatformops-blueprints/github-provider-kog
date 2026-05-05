@@ -1,0 +1,29 @@
+apiVersion: github.ogen.krateo.io/v1alpha1
+kind: BranchProtection
+metadata:
+  name: test-branchprotection-modern-checks
+  namespace: default
+  annotations:
+    krateo.io/connector-verbose: "true"
+spec:
+  configurationRef:
+    name: my-branchprotection-config
+    namespace: default
+  owner: krateoplatformops-test
+  repo: branchprotection-tester-04
+  branch: main
+  enforce_admins: true
+  required_status_checks:
+    strict: false
+    checks:
+      - context: "ci/build"
+        app_id: -1
+      - context: "ci/test"
+        app_id: -1
+      - context: "security-scan"
+        app_id: -1
+  required_pull_request_reviews:
+    required_approving_review_count: 1
+  restrictions:
+    users: []
+    teams: []
