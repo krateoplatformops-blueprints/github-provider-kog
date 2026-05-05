@@ -10,7 +10,7 @@ image:
 
 imagePullSecrets: []
 nameOverride: ""
-fullnameOverride: ""
+fullnameOverride: "github-provider-kog-branchprotection-plugin"
 
 serviceAccount:
   create: true
