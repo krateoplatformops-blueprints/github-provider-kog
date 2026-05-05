@@ -1,7 +1,7 @@
 # GitHub Provider KOG Blueprint
 
 This is a Krateo Blueprint that deploys the GitHub Provider KOG leveraging the [OASGen Provider](https://github.com/krateoplatformops/oasgen-provider) and using [OpenAPI Specifications (OAS) of the GitHub REST API](https://github.com/github/rest-api-description/blob/main/descriptions/api.github.com/api.github.com.2022-11-28.yaml).
-This provider allows you to manage GitHub resources such as repositories, collaborators, teamrepoes, runnergroups and workflows runs in a cloud-native way using the Krateo platform.
+This provider allows you to manage GitHub resources such as repositories, collaborators, etc. in a cloud-native way using the Krateo platform.
 
 ## Summary
 
@@ -10,6 +10,7 @@ This provider allows you to manage GitHub resources such as repositories, collab
 - [How to install](#how-to-install)
   - [Full provider installation](#full-provider-installation)
   - [Single resource installation](#single-resource-installation)
+- [Latest versions](#latest-versions)
 - [Supported resources](#supported-resources)
   - [Resource details](#resource-details)
     - [BranchProtection](#branchprotection)
@@ -50,7 +51,7 @@ helm install github-provider-kog github-provider-kog \
   --repo https://marketplace.krateo.io \
   --namespace <release-namespace> \
   --create-namespace \
-  --version 1.0.0 \
+  --version 1.1.0 \
   --wait
 ```
 
@@ -88,9 +89,29 @@ helm install github-provider-kog-repo github-provider-kog-repo \
   --repo https://marketplace.krateo.io \
   --namespace <release-namespace> \
   --create-namespace \
-  --version 1.0.0 \
+  --version 1.1.0 \
   --wait
 ```
+
+> [!NOTE]
+> Blueprint version may vary based on the resource you want to install.
+
+## Latest versions
+
+The following table shows the latest versions of the charts for each resource supported by this provider and the main chart that can deploy all resources:
+
+| Main chart      | Version |
+|-----------------|---------|
+| github-provider-kog-blueprint | 1.1.0   |
+
+| Resource        | Version |
+|-----------------|---------|
+| github-provider-kog-branchprotection | 1.0.0   |
+| github-provider-kog-collaborator | 1.0.0   |
+| github-provider-kog-repo | 1.0.0   |
+| github-provider-kog-teamrepo | 1.0.0   |
+| github-provider-kog-workflow | 1.0.0   |
+| github-provider-kog-runnergroup | 1.0.0   |
 
 ## Supported resources
 
@@ -394,6 +415,7 @@ More details about the configuration resources in the [Configuration resources](
 
 Each resource type (e.g., `Repo`, `Collaborator`, `TeamRepo`) requires a specific configuration resource (e.g., `RepoConfiguration`, `CollaboratorConfiguration`, `TeamRepoConfiguration`) to be created in the cluster.
 Currently, the supported configuration resources are:
+- `BranchProtectionConfiguration`
 - `RepoConfiguration`
 - `CollaboratorConfiguration`
 - `TeamRepoConfiguration`
@@ -404,13 +426,16 @@ These configuration resources are used to store the authentication information (
 You can find examples of these configuration resources in the `/samples/configs` folder of the chart.
 Note that a single configuration resource can be used by multiple resources of the same type.
 For example, you can create a single `RepoConfiguration` resource and reference it in multiple `Repo` resources.
+Note that some configuration resources may contain just the authentication information, while others may contain additional configuration options related to the specific resource type.
 
 ### values.yaml
 
-You can customize the **github-provider-kog-blueprint** chart by modifying the `values.yaml` file.
+You can customize the **github-provider-kog-blueprint** chart (main chart) by modifying the `values.yaml` file.
 For instance, you can select which resources the provider should support in the oncoming installation.
-This may be useful if you want to limit the resources managed by the provider to only those you need, reducing the overhead of managing unnecessary controllers. For instance, if you only need to manage `Repo` resources, you can disable the other resources by setting the various `enabled` fields to `false` in the `values.yaml` file, as shown below:
+This may be useful if you want to limit the resources managed by the provider to only those you need, reducing the overhead of managing unnecessary controllers. For instance, if you only need to manage `Repo` and `BranchProtection` resources, you can disable the other resources by setting the various `enabled` fields to `false` in the `values.yaml` file, as shown below:
 ```yaml
+github-provider-kog-branchprotection-blueprint:
+  enabled: true
 github-provider-kog-collaborator-blueprint:
   enabled: false
 github-provider-kog-repo-blueprint:
@@ -422,7 +447,9 @@ github-provider-kog-workflow-blueprint:
 github-provider-kog-runnergroup-blueprint:
   enabled: false
 ```
-The default configuration of the chart enables all resources supported by the chart.
+
+> [!NOTE]  
+> The default configuration of the main chart enables all resources supported by the chart.
 
 ### Verbose logging
 
@@ -451,5 +478,4 @@ It contains common issues and solutions related to this chart.
 
 ## Release process
 
-Please refer to the [Release guide](./docs/release.md) in the `/docs` folder of the chart for detailed instructions on how to release new versions of the chart and its components.
-
+For development purposes, please refer to the [Release guide](./docs/release.md) in the `/docs` folder of the chart for detailed instructions on how to release new versions of the chart and its components.
