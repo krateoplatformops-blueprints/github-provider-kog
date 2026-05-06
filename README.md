@@ -33,6 +33,8 @@ This provider allows you to manage GitHub resources such as repositories, collab
 [OASGen Provider](https://github.com/krateoplatformops/oasgen-provider) should be installed in your cluster. Follow the related Helm Chart [README](https://github.com/krateoplatformops/oasgen-provider-chart) for installation instructions.
 Note that a standard installation of Krateo contains the OASGen Provider.
 
+Minimum `oasgen-provider-chart` version required: `0.9.0` (which is shipped with Krateo 2.7.0).
+
 ## Project structure
 
 This project is composed by the following folders:
