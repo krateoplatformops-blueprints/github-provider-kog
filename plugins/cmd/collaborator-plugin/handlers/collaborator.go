@@ -94,7 +94,8 @@ func (h *baseHandler) makeGitHubRequest(method, url, authHeader string, body []b
 }
 
 func (h *baseHandler) checkCollaboratorStatus(owner, repo, username, authHeader string) (CollaboratorStatus, error) {
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/collaborators/%s", owner, repo, username)
+	url := fmt.Sprintf("%s/repos/%s/%s/collaborators/%s", h.BaseURL, owner, repo, username)
+	h.Log.Printf("Checking collaborator status: GET %s", url)
 	resp, err := h.makeGitHubRequest("GET", url, authHeader, nil)
 	if err != nil {
 		return StatusNotCollaborator, err
@@ -124,7 +125,7 @@ func (h *baseHandler) writeJSONResponse(w http.ResponseWriter, statusCode int, b
 }
 
 func (h *baseHandler) findUserInvitation(owner, repo, username, authHeader string) (*GitHubInvitation, bool, error) {
-	return findUserInvitationHelper(h.Client, h.Log, owner, repo, username, authHeader)
+	return findUserInvitationHelper(h.Client, h.Log, h.BaseURL, owner, repo, username, authHeader)
 }
 
 // GET handler implementation
@@ -165,7 +166,8 @@ func (h *getHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *getHandler) getUserPermissionAndRespond(w http.ResponseWriter, owner, repo, username, authHeader string) error {
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/collaborators/%s/permission", owner, repo, username)
+	url := fmt.Sprintf("%s/repos/%s/%s/collaborators/%s/permission", h.BaseURL, owner, repo, username)
+	h.Log.Printf("Getting permission: GET %s", url)
 	resp, err := h.makeGitHubRequest("GET", url, authHeader, nil)
 	if err != nil {
 		return err
@@ -260,7 +262,8 @@ func (h *postHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *postHandler) addCollaborator(w http.ResponseWriter, owner, repo, username, authHeader string, body []byte, permission string) error {
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/collaborators/%s", owner, repo, username)
+	url := fmt.Sprintf("%s/repos/%s/%s/collaborators/%s", h.BaseURL, owner, repo, username)
+	h.Log.Printf("Adding collaborator: PUT %s", url)
 	resp, err := h.makeGitHubRequest("PUT", url, authHeader, body)
 	if err != nil {
 		return err
@@ -353,9 +356,8 @@ func (h *patchHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *patchHandler) updateCollaboratorPermission(w http.ResponseWriter, owner, repo, username, authHeader string, body []byte, permission string) error {
-	h.Log.Printf("User %s is already a collaborator, updating permission", username)
-
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/collaborators/%s", owner, repo, username)
+	url := fmt.Sprintf("%s/repos/%s/%s/collaborators/%s", h.BaseURL, owner, repo, username)
+	h.Log.Printf("Updating collaborator permission: PUT %s", url)
 	resp, err := h.makeGitHubRequest("PUT", url, authHeader, body)
 	if err != nil {
 		return err
@@ -419,7 +421,8 @@ func (h *patchHandler) updateInvitation(w http.ResponseWriter, owner, repo, user
 		return fmt.Errorf("failed to correct permissions field: %w", err)
 	}
 
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/invitations/%d", owner, repo, invitationID)
+	url := fmt.Sprintf("%s/repos/%s/%s/invitations/%d", h.BaseURL, owner, repo, invitationID)
+	h.Log.Printf("Updating invitation permission: PATCH %s", url)
 	resp, err := h.makeGitHubRequest("PATCH", url, authHeader, correctedBody)
 	if err != nil {
 		return err
@@ -489,9 +492,8 @@ func (h *deleteHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *deleteHandler) removeCollaborator(w http.ResponseWriter, owner, repo, username, authHeader string) error {
-	h.Log.Printf("User %s is a collaborator, removing from repository", username)
-
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/collaborators/%s", owner, repo, username)
+	url := fmt.Sprintf("%s/repos/%s/%s/collaborators/%s", h.BaseURL, owner, repo, username)
+	h.Log.Printf("Removing collaborator: DELETE %s", url)
 	resp, err := h.makeGitHubRequest("DELETE", url, authHeader, nil)
 	if err != nil {
 		return err
@@ -543,9 +545,8 @@ func (h *deleteHandler) cancelInvitation(w http.ResponseWriter, owner, repo, use
 		return nil
 	}
 
-	h.Log.Printf("Found pending invitation for user %s (ID: %d), cancelling invitation", username, invitation.ID)
-
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/invitations/%d", owner, repo, invitation.ID)
+	url := fmt.Sprintf("%s/repos/%s/%s/invitations/%d", h.BaseURL, owner, repo, invitation.ID)
+	h.Log.Printf("Cancelling invitation for user %s (ID: %d): DELETE %s", username, invitation.ID, url)
 	resp, err := h.makeGitHubRequest("DELETE", url, authHeader, nil)
 	if err != nil {
 		return err
@@ -584,13 +585,15 @@ type httpDoer interface {
 func findUserInvitationHelper(client httpDoer, logger interface {
 	Printf(string, ...interface{})
 	Print(...interface{})
-}, owner, repo, username, authHeader string) (*GitHubInvitation, bool, error) {
+}, baseURL, owner, repo, username, authHeader string) (*GitHubInvitation, bool, error) {
 	logger.Printf("Checking invitations for user %s in repository %s/%s", username, owner, repo)
 	page := 1
 	perPage := 30
 
 	for {
-		req, err := http.NewRequest("GET", fmt.Sprintf("https://api.github.com/repos/%s/%s/invitations?per_page=%d&page=%d", owner, repo, perPage, page), nil)
+		inviteURL := fmt.Sprintf("%s/repos/%s/%s/invitations?per_page=%d&page=%d", baseURL, owner, repo, perPage, page)
+		logger.Printf("Fetching invitations page %d: GET %s", page, inviteURL)
+		req, err := http.NewRequest("GET", inviteURL, nil)
 		if err != nil {
 			return nil, false, err
 		}

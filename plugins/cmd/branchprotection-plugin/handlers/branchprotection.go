@@ -94,9 +94,8 @@ func (h *getHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	branch := r.PathValue("branch")
 	authHeader := r.Header.Get("Authorization")
 
-	h.Log.Printf("Getting branch protection for %s/%s branch %s", owner, repo, branch)
-
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/branches/%s/protection", owner, repo, branch)
+	url := fmt.Sprintf("%s/repos/%s/%s/branches/%s/protection", h.BaseURL, owner, repo, branch)
+	h.Log.Printf("Getting branch protection: GET %s", url)
 	resp, err := h.makeGitHubRequest("GET", url, authHeader, nil)
 	if err != nil {
 		h.writeErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("failed to call GitHub API: %v", err))
@@ -151,8 +150,6 @@ func (h *putHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	branch := r.PathValue("branch")
 	authHeader := r.Header.Get("Authorization")
 
-	h.Log.Printf("Updating branch protection for %s/%s branch %s", owner, repo, branch)
-
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		h.writeErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("failed to read request body: %v", err))
@@ -166,7 +163,8 @@ func (h *putHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/branches/%s/protection", owner, repo, branch)
+	url := fmt.Sprintf("%s/repos/%s/%s/branches/%s/protection", h.BaseURL, owner, repo, branch)
+	h.Log.Printf("Updating branch protection: PUT %s", url)
 	resp, err := h.makeGitHubRequest("PUT", url, authHeader, enriched)
 	if err != nil {
 		h.writeErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("failed to call GitHub API: %v", err))
@@ -216,9 +214,8 @@ func (h *deleteHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	branch := r.PathValue("branch")
 	authHeader := r.Header.Get("Authorization")
 
-	h.Log.Printf("Deleting branch protection for %s/%s branch %s", owner, repo, branch)
-
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/branches/%s/protection", owner, repo, branch)
+	url := fmt.Sprintf("%s/repos/%s/%s/branches/%s/protection", h.BaseURL, owner, repo, branch)
+	h.Log.Printf("Deleting branch protection: DELETE %s", url)
 	resp, err := h.makeGitHubRequest("DELETE", url, authHeader, nil)
 	if err != nil {
 		h.writeErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("failed to call GitHub API: %v", err))

@@ -91,10 +91,15 @@ func (m *mockHTTPClient) reset() {
 
 // createTestGetHandler creates a GET handler instance for testing with a mock client
 func createTestGetHandler(mockClient *mockHTTPClient) *getHandler {
+	return createTestGetHandlerWithBaseURL(mockClient, testBaseURL)
+}
+
+func createTestGetHandlerWithBaseURL(mockClient *mockHTTPClient, baseURL string) *getHandler {
 	logger := zerolog.New(io.Discard).With().Timestamp().Logger()
 	opts := handlers.HandlerOptions{
-		Client: mockClient,
-		Log:    &logger,
+		Client:  mockClient,
+		Log:     &logger,
+		BaseURL: baseURL,
 	}
 	return GetCollaborator(opts).(*getHandler)
 }
@@ -103,8 +108,9 @@ func createTestGetHandler(mockClient *mockHTTPClient) *getHandler {
 func createTestPostHandler(mockClient *mockHTTPClient) *postHandler {
 	logger := zerolog.New(io.Discard).With().Timestamp().Logger()
 	opts := handlers.HandlerOptions{
-		Client: mockClient,
-		Log:    &logger,
+		Client:  mockClient,
+		Log:     &logger,
+		BaseURL: testBaseURL,
 	}
 	return PostCollaborator(opts).(*postHandler)
 }
@@ -113,8 +119,9 @@ func createTestPostHandler(mockClient *mockHTTPClient) *postHandler {
 func createTestPatchHandler(mockClient *mockHTTPClient) *patchHandler {
 	logger := zerolog.New(io.Discard).With().Timestamp().Logger()
 	opts := handlers.HandlerOptions{
-		Client: mockClient,
-		Log:    &logger,
+		Client:  mockClient,
+		Log:     &logger,
+		BaseURL: testBaseURL,
 	}
 	return PatchCollaborator(opts).(*patchHandler)
 }
@@ -123,24 +130,27 @@ func createTestPatchHandler(mockClient *mockHTTPClient) *patchHandler {
 func createTestDeleteHandler(mockClient *mockHTTPClient) *deleteHandler {
 	logger := zerolog.New(io.Discard).With().Timestamp().Logger()
 	opts := handlers.HandlerOptions{
-		Client: mockClient,
-		Log:    &logger,
+		Client:  mockClient,
+		Log:     &logger,
+		BaseURL: testBaseURL,
 	}
 	return DeleteCollaborator(opts).(*deleteHandler)
 }
 
 // Test data constants
 const (
-	testOwner    = "testowner"
-	testRepo     = "testrepo"
-	testUsername = "testuser"
-	testToken    = "token test-token-123"
+	testOwner      = "testowner"
+	testRepo       = "testrepo"
+	testUsername   = "testuser"
+	testToken      = "token test-token-123"
+	testBaseURL    = "https://api.github.com"
+	testGHEBaseURL = "https://ghe.example.com/api/v3"
 )
 
 var (
-	collaboratorExternalURL = fmt.Sprintf("https://api.github.com/repos/%s/%s/collaborators/%s", testOwner, testRepo, testUsername)
-	permissionExternalURL   = fmt.Sprintf("https://api.github.com/repos/%s/%s/collaborators/%s/permission", testOwner, testRepo, testUsername)
-	invitationsExternalURL  = fmt.Sprintf("https://api.github.com/repos/%s/%s/invitations", testOwner, testRepo)
+	collaboratorExternalURL = fmt.Sprintf("%s/repos/%s/%s/collaborators/%s", testBaseURL, testOwner, testRepo, testUsername)
+	permissionExternalURL   = fmt.Sprintf("%s/repos/%s/%s/collaborators/%s/permission", testBaseURL, testOwner, testRepo, testUsername)
+	invitationsExternalURL  = fmt.Sprintf("%s/repos/%s/%s/invitations", testBaseURL, testOwner, testRepo)
 	validPermissionResp     = `{
 		"permission": "admin",
 		"user": {
@@ -783,7 +793,7 @@ func TestPatchHandler_ServeHTTP(t *testing.T) {
 				invitationsURL := fmt.Sprintf("%s?per_page=30&page=1", invitationsExternalURL)
 				mockClient.setResponse(invitationsURL, http.StatusOK, validInvitationResp)
 				// Update invitation succeeds
-				invitationUpdateURL := fmt.Sprintf("https://api.github.com/repos/%s/%s/invitations/1", testOwner, testRepo)
+				invitationUpdateURL := fmt.Sprintf("%s/repos/%s/%s/invitations/1", testBaseURL, testOwner, testRepo)
 				mockClient.setResponse(invitationUpdateURL, http.StatusOK, `{}`)
 			},
 			expectedStatus:       http.StatusAccepted,
@@ -888,7 +898,7 @@ func TestPatchHandler_ServeHTTP(t *testing.T) {
 				invitationsURL := fmt.Sprintf("%s?per_page=30&page=1", invitationsExternalURL)
 				mockClient.setResponse(invitationsURL, http.StatusOK, validInvitationResp)
 				// GitHub API error on invitation update
-				invitationUpdateURL := fmt.Sprintf("https://api.github.com/repos/%s/%s/invitations/1", testOwner, testRepo)
+				invitationUpdateURL := fmt.Sprintf("%s/repos/%s/%s/invitations/1", testBaseURL, testOwner, testRepo)
 				mockClient.setResponse(invitationUpdateURL, http.StatusForbidden, `{"message": "Permission denied"}`)
 			},
 			expectedStatus:       http.StatusForbidden,
@@ -997,7 +1007,7 @@ func TestDeleteHandler_ServeHTTP(t *testing.T) {
 				invitationsURL := fmt.Sprintf("%s?per_page=30&page=1", invitationsExternalURL)
 				mockClient.setResponse(invitationsURL, http.StatusOK, validInvitationResp)
 				// Cancel invitation succeeds
-				invitationDeleteURL := fmt.Sprintf("https://api.github.com/repos/%s/%s/invitations/1", testOwner, testRepo)
+				invitationDeleteURL := fmt.Sprintf("%s/repos/%s/%s/invitations/1", testBaseURL, testOwner, testRepo)
 				mockClient.setResponse(invitationDeleteURL, http.StatusNoContent, "")
 			},
 			expectedStatus:       http.StatusAccepted,
@@ -1068,7 +1078,7 @@ func TestDeleteHandler_ServeHTTP(t *testing.T) {
 				invitationsURL := fmt.Sprintf("%s?per_page=30&page=1", invitationsExternalURL)
 				mockClient.setResponse(invitationsURL, http.StatusOK, validInvitationResp)
 				// GitHub API error on invitation cancellation
-				invitationDeleteURL := fmt.Sprintf("https://api.github.com/repos/%s/%s/invitations/1", testOwner, testRepo)
+				invitationDeleteURL := fmt.Sprintf("%s/repos/%s/%s/invitations/1", testBaseURL, testOwner, testRepo)
 				mockClient.setResponse(invitationDeleteURL, http.StatusForbidden, `{"message": "Permission denied"}`)
 			},
 			expectedStatus:       http.StatusForbidden,
@@ -1251,7 +1261,7 @@ func TestFindUserInvitationHelper(t *testing.T) {
 
 			logger := zerolog.New(io.Discard).With().Timestamp().Logger()
 
-			invitation, found, err := findUserInvitationHelper(mockClient, &logger, testOwner, testRepo, testUsername, testToken)
+			invitation, found, err := findUserInvitationHelper(mockClient, &logger, testBaseURL, testOwner, testRepo, testUsername, testToken)
 
 			if tt.expectError && err == nil {
 				t.Error("expected error but got nil")
@@ -1269,5 +1279,42 @@ func TestFindUserInvitationHelper(t *testing.T) {
 				t.Error("expected no invitation but got one")
 			}
 		})
+	}
+}
+
+// TestGHEBaseURL_CollaboratorHandler verifies that setting a custom BaseURL causes
+// the handler to build requests against the GHE host instead of api.github.com.
+func TestGHEBaseURL_CollaboratorHandler(t *testing.T) {
+	gheCollaboratorURL := fmt.Sprintf("%s/repos/%s/%s/collaborators/%s", testGHEBaseURL, testOwner, testRepo, testUsername)
+	ghePermissionURL := fmt.Sprintf("%s/repos/%s/%s/collaborators/%s/permission", testGHEBaseURL, testOwner, testRepo, testUsername)
+
+	mockClient := newMockHTTPClient()
+	mockClient.setResponse(gheCollaboratorURL, http.StatusNoContent, "")
+	mockClient.setResponse(ghePermissionURL, http.StatusOK, validPermissionResp)
+
+	handler := createTestGetHandlerWithBaseURL(mockClient, testGHEBaseURL)
+
+	mux := http.NewServeMux()
+	mux.Handle("GET /repository/{owner}/{repo}/collaborators/{username}/permission", handler)
+
+	path := fmt.Sprintf("/repository/%s/%s/collaborators/%s/permission", testOwner, testRepo, testUsername)
+	req := httptest.NewRequest("GET", path, nil)
+	req.Header.Set("Authorization", testToken)
+
+	rr := httptest.NewRecorder()
+	mux.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", rr.Code)
+	}
+	if mockClient.getRequestCount() != 2 {
+		t.Errorf("expected 2 requests, got %d", mockClient.getRequestCount())
+	}
+	// Verify both requests went to the GHE host, not api.github.com.
+	for i, r := range mockClient.requests {
+		host := r.URL.Host
+		if host != "ghe.example.com" {
+			t.Errorf("request %d: expected host ghe.example.com, got %s (full URL: %s)", i, host, r.URL.String())
+		}
 	}
 }

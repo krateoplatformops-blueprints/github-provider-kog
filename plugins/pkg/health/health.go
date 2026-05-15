@@ -26,7 +26,7 @@ func LivenessHandler(healthy *int32) http.HandlerFunc {
 // ReadinessHandler implements Kubernetes readiness probe
 // Returns 200 if the application is ready to serve traffic
 // For a proxy service like this one, this includes checking connectivity to GitHub API
-func ReadinessHandler(ready *int32, client *http.Client) http.HandlerFunc {
+func ReadinessHandler(ready *int32, client *http.Client, baseURL string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// First check if the service is marked as ready
 		if atomic.LoadInt32(ready) == 0 {
@@ -35,11 +35,11 @@ func ReadinessHandler(ready *int32, client *http.Client) http.HandlerFunc {
 			return
 		}
 
-		// For a GitHub API proxy, we verify we can reach GitHub
+		// For a GitHub API proxy, we verify we can reach the configured GitHub endpoint
 		ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 		defer cancel()
 
-		req, err := http.NewRequestWithContext(ctx, "GET", "https://api.github.com", nil)
+		req, err := http.NewRequestWithContext(ctx, "GET", baseURL, nil)
 		if err != nil {
 			log.Debug().Err(err).Msg("failed to create GitHub API request for readiness check")
 			w.WriteHeader(http.StatusServiceUnavailable)

@@ -3,10 +3,11 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/krateoplatformops-blueprints/github-provider-kog/branchprotection-plugin
-  pullPolicy: IfNotPresent
+  #repository: ghcr.io/krateoplatformops-blueprints/github-provider-kog/branchprotection-plugin
+  repository: leovice/branchprotection-plugin
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "latest"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -54,3 +55,8 @@ volumeMounts: []
 nodeSelector: {}
 tolerations: []
 affinity: {}
+
+# GitHub API base URL.
+# Leave empty to use the default (https://api.github.com).
+# Override for GitHub Enterprise Server, e.g.: https://my-ghe.corp.com/api/v3
+githubApiBaseUrl: ""

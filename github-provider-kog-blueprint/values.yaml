@@ -9,6 +9,12 @@ github-provider-kog-branchprotection-blueprint:
   # default: true
   # @schema
   enabled: true
+  # @schema
+  # type: string
+  # description: GitHub API base URL. Leave empty for github.com. Set to the full API base URL for GitHub Enterprise Server (e.g. https://ghe.corp.com/api/v3).
+  # default: ""
+  # @schema
+  githubApiBaseUrl: ""
 
 # @schema
 # type: object
@@ -21,6 +27,12 @@ github-provider-kog-collaborator-blueprint:
   # default: true
   # @schema
   enabled: true
+  # @schema
+  # type: string
+  # description: GitHub API base URL. Leave empty for github.com. Set to the full API base URL for GitHub Enterprise Server (e.g. https://ghe.corp.com/api/v3).
+  # default: ""
+  # @schema
+  githubApiBaseUrl: ""
 
 # @schema
 # type: object
@@ -33,6 +45,12 @@ github-provider-kog-repo-blueprint:
   # default: true
   # @schema
   enabled: true
+  # @schema
+  # type: string
+  # description: GitHub API base URL. Leave empty for github.com. Set to the full API base URL for GitHub Enterprise Server (e.g. https://ghe.corp.com/api/v3).
+  # default: ""
+  # @schema
+  githubApiBaseUrl: ""
 
 # @schema
 # type: object
@@ -45,6 +63,12 @@ github-provider-kog-runnergroup-blueprint:
   # default: true
   # @schema
   enabled: true
+  # @schema
+  # type: string
+  # description: GitHub API base URL. Leave empty for github.com. Set to the full API base URL for GitHub Enterprise Server (e.g. https://ghe.corp.com/api/v3).
+  # default: ""
+  # @schema
+  githubApiBaseUrl: ""
 
 # @schema
 # type: object
@@ -57,6 +81,12 @@ github-provider-kog-teamrepo-blueprint:
   # default: true
   # @schema
   enabled: true
+  # @schema
+  # type: string
+  # description: GitHub API base URL. Leave empty for github.com. Set to the full API base URL for GitHub Enterprise Server (e.g. https://ghe.corp.com/api/v3).
+  # default: ""
+  # @schema
+  githubApiBaseUrl: ""
 
 # @schema
 # type: object
@@ -69,3 +99,9 @@ github-provider-kog-workflow-blueprint:
   # default: true
   # @schema
   enabled: true
+  # @schema
+  # type: string
+  # description: GitHub API base URL. Leave empty for github.com. Set to the full API base URL for GitHub Enterprise Server (e.g. https://ghe.corp.com/api/v3).
+  # default: ""
+  # @schema
+  githubApiBaseUrl: ""

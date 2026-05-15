@@ -2,8 +2,56 @@ package branchprotection
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
+
+	"github.com/krateoplatformops/github-provider-kog/pkg/handlers"
+	"github.com/rs/zerolog"
 )
+
+// Test data constants
+const (
+	testBaseURL    = "https://api.github.com"
+	testGHEBaseURL = "https://ghe.example.com/api/v3"
+	testToken      = "token test-token-123"
+)
+
+// mockHTTPClient is a minimal stub used only in GHE URL routing tests.
+type mockHTTPClient struct {
+	responses map[string]*http.Response
+	requests  []*http.Request
+}
+
+func newMockHTTPClient() *mockHTTPClient {
+	return &mockHTTPClient{
+		responses: make(map[string]*http.Response),
+		requests:  make([]*http.Request, 0),
+	}
+}
+
+func (m *mockHTTPClient) Do(req *http.Request) (*http.Response, error) {
+	m.requests = append(m.requests, req)
+	if resp, ok := m.responses[req.URL.String()]; ok {
+		return resp, nil
+	}
+	return &http.Response{
+		StatusCode: http.StatusOK,
+		Body:       io.NopCloser(strings.NewReader(`{}`)),
+		Header:     make(http.Header),
+	}, nil
+}
+
+func (m *mockHTTPClient) setResponse(url string, statusCode int, body string) {
+	m.responses[url] = &http.Response{
+		StatusCode: statusCode,
+		Body:       io.NopCloser(strings.NewReader(body)),
+		Header:     make(http.Header),
+	}
+}
 
 // ---- normalizeGetResponse tests ----
 
@@ -296,6 +344,49 @@ func TestExtractField_EmptyArray(t *testing.T) {
 	got := extractField([]interface{}{}, "login")
 	if len(got) != 0 {
 		t.Errorf("expected empty slice, got %v", got)
+	}
+}
+
+// TestGHEBaseURL_BranchProtectionHandler verifies that setting a custom BaseURL causes
+// the handler to build requests against the GHE host instead of api.github.com.
+func TestGHEBaseURL_BranchProtectionHandler(t *testing.T) {
+	owner, repo, branch := "testowner", "testrepo", "main"
+	gheURL := fmt.Sprintf("%s/repos/%s/%s/branches/%s/protection", testGHEBaseURL, owner, repo, branch)
+
+	mockClient := newMockHTTPClient()
+	mockClient.setResponse(gheURL, http.StatusOK, `{
+		"url": "https://ghe.example.com/api/v3/repos/testowner/testrepo/branches/main/protection",
+		"enforce_admins": {"enabled": false}
+	}`)
+
+	logger := zerolog.New(io.Discard).With().Timestamp().Logger()
+	opts := handlers.HandlerOptions{
+		Client:  mockClient,
+		Log:     &logger,
+		BaseURL: testGHEBaseURL,
+	}
+	handler := GetBranchProtection(opts)
+
+	mux := http.NewServeMux()
+	mux.Handle("GET /api/{owner}/{repo}/branches/{branch}/protection", handler)
+
+	path := fmt.Sprintf("/api/%s/%s/branches/%s/protection", owner, repo, branch)
+	req := httptest.NewRequest("GET", path, nil)
+	req.Header.Set("Authorization", testToken)
+
+	rr := httptest.NewRecorder()
+	mux.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d (body: %s)", rr.Code, rr.Body.String())
+	}
+	if len(mockClient.requests) != 1 {
+		t.Fatalf("expected 1 request, got %d", len(mockClient.requests))
+	}
+	// Verify the request went to the GHE host, not api.github.com.
+	r := mockClient.requests[0]
+	if r.URL.Host != "ghe.example.com" {
+		t.Errorf("expected host ghe.example.com, got %s (full URL: %s)", r.URL.Host, r.URL.String())
 	}
 }
 

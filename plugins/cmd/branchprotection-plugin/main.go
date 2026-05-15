@@ -2,6 +2,8 @@ package main
 
 import (
 	"net/http"
+	"os"
+	"strings"
 
 	branchprotection "github.com/krateoplatformops/github-provider-kog/branchprotection-plugin/handlers"
 	"github.com/krateoplatformops/github-provider-kog/pkg/handlers"
@@ -26,9 +28,15 @@ import (
 func main() {
 	srv := server.New()
 
+	baseURL := strings.TrimRight(os.Getenv("GITHUB_API_BASE_URL"), "/")
+	if baseURL == "" {
+		baseURL = "https://api.github.com"
+	}
+
 	opts := handlers.HandlerOptions{
-		Log:    &log.Logger,
-		Client: http.DefaultClient,
+		Log:     &log.Logger,
+		Client:  http.DefaultClient,
+		BaseURL: baseURL,
 	}
 
 	// BranchProtection — uses PUT for both create and update (GitHub is idempotent).
@@ -41,7 +49,7 @@ func main() {
 
 	// Kubernetes health check endpoints
 	srv.Mux().HandleFunc("GET /healthz", health.LivenessHandler(srv.Healthy()))
-	srv.Mux().HandleFunc("GET /readyz", health.ReadinessHandler(srv.Ready(), opts.Client.(*http.Client)))
+	srv.Mux().HandleFunc("GET /readyz", health.ReadinessHandler(srv.Ready(), opts.Client.(*http.Client), opts.BaseURL))
 
 	srv.Run()
 }

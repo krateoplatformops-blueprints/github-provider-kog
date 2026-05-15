@@ -1,0 +1,6 @@
+# Default values for github-provider-kog-runnergroup.
+
+# GitHub API base URL.
+# Leave empty to use the default (https://api.github.com).
+# Override for GitHub Enterprise Server, e.g.: https://my-ghe.corp.com/api/v3
+githubApiBaseUrl: ""

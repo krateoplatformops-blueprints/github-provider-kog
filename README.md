@@ -21,6 +21,7 @@ This provider allows you to manage GitHub resources such as repositories, collab
     - [RunnerGroup](#runnergroup)
   - [Resource examples](#resource-examples)
 - [Authentication](#authentication)
+- [GitHub Enterprise Server Support](#github-enterprise-server-support)
 - [Configuration](#configuration)
   - [Configuration resources](#configuration-resources)
   - [values.yaml](#valuesyaml)
@@ -410,6 +411,63 @@ spec:
 ```
 
 More details about the configuration resources in the [Configuration resources](#configuration-resources) section below.
+
+## GitHub Enterprise Server Support
+
+All resources support GitHub Enterprise Server (GHE) in addition to github.com. The GitHub API base URL is configurable per sub-chart via the `githubApiBaseUrl` value.
+
+### Full provider installation (umbrella chart)
+
+Pass `githubApiBaseUrl` for each sub-chart you want to point at GHE. Because Helm propagates sub-chart values by nesting them under the sub-chart key, you can use a values file:
+
+```yaml
+# ghe-values.yaml
+github-provider-kog-branchprotection-blueprint:
+  githubApiBaseUrl: "https://ghe.corp.com/api/v3"
+github-provider-kog-collaborator-blueprint:
+  githubApiBaseUrl: "https://ghe.corp.com/api/v3"
+github-provider-kog-repo-blueprint:
+  githubApiBaseUrl: "https://ghe.corp.com/api/v3"
+github-provider-kog-runnergroup-blueprint:
+  githubApiBaseUrl: "https://ghe.corp.com/api/v3"
+github-provider-kog-teamrepo-blueprint:
+  githubApiBaseUrl: "https://ghe.corp.com/api/v3"
+github-provider-kog-workflow-blueprint:
+  githubApiBaseUrl: "https://ghe.corp.com/api/v3"
+```
+
+```sh
+helm install github-provider-kog github-provider-kog \
+  --repo https://marketplace.krateo.io \
+  --namespace krateo-system \
+  --create-namespace \
+  --version 1.2.0 \
+  -f ghe-values.yaml \
+  --wait
+```
+
+When left empty (the default), all sub-charts fall back to `https://api.github.com`.
+
+### Single resource installation
+
+For a single blueprint, pass `githubApiBaseUrl` directly:
+
+```sh
+helm install github-provider-kog-repo github-provider-kog-repo \
+  --repo https://marketplace.krateo.io \
+  --namespace krateo-system \
+  --create-namespace \
+  --version 1.1.0 \
+  --set githubApiBaseUrl=https://ghe.corp.com/api/v3 \
+  --wait
+```
+
+### How it works
+
+- **Plugin-backed resources** (`BranchProtection`, `Collaborator`, `TeamRepo`): `githubApiBaseUrl` is injected as the `GITHUB_API_BASE_URL` environment variable into the plugin `Deployment`. The plugin uses it for every outbound GitHub API request and for its readiness probe.
+- **Direct-API resources** (`Repo`, `RunnerGroup`, `Workflow`): `githubApiBaseUrl` is templated into the `servers[0].url` field of the OAS asset that the OASGen Provider uses to generate the controller. No plugin is involved.
+
+The URL must be a full base URL with no trailing slash (e.g., `https://ghe.corp.com/api/v3`).
 
 ## Configuration
 

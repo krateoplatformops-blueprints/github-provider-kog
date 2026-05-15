@@ -12,7 +12,7 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   version: "1.0"
 servers:
-  - url: http://api.github.com/
+  - url: {{ .Values.githubApiBaseUrl | default "https://api.github.com" }}
 paths:
   /api/{owner}/{repo}/branches/{branch}/protection:
     get:

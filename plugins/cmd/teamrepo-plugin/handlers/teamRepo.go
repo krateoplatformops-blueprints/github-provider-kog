@@ -39,13 +39,12 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	owner := r.PathValue("owner")
 	repo := r.PathValue("repo")
 
-	h.Log.Println("Calling GitHub TeamRepository API")
-
 	auth_header := r.Header.Get("Authorization")
 
 	// https://docs.github.com/en/rest/teams/teams?apiVersion=2022-11-28#check-team-permissions-for-a-repository
-	// /orgs/krateoplatformops/teams/krateo-team/repos/krateoplatformops/azuredevops-oas3
-	req, err := http.NewRequest("GET", "https://api.github.com/orgs/"+org+"/teams/"+teamSlug+"/repos/"+owner+"/"+repo, nil)
+	teamRepoURL := h.BaseURL + "/orgs/" + org + "/teams/" + teamSlug + "/repos/" + owner + "/" + repo
+	h.Log.Printf("Getting team repo permission: GET %s", teamRepoURL)
+	req, err := http.NewRequest("GET", teamRepoURL, nil)
 	if err != nil {
 		h.Log.Println(err)
 		w.Write([]byte(fmt.Sprint("Error: ", err)))

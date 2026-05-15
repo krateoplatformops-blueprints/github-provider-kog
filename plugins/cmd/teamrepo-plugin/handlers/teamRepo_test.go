@@ -91,14 +91,18 @@ func (m *mockHTTPClient) reset() {
 
 // createTestHandler creates a handler instance for testing with a mock client
 func createTestHandler(mockClient *mockHTTPClient) *handler {
+	return createTestHandlerWithBaseURL(mockClient, testBaseURL)
+}
+
+func createTestHandlerWithBaseURL(mockClient *mockHTTPClient, baseURL string) *handler {
 	logger := zerolog.New(io.Discard).With().Timestamp().Logger()
-	h := &handler{
+	return &handler{
 		HandlerOptions: handlers.HandlerOptions{
-			Client: mockClient, // Use the mock client directly
-			Log:    &logger,
+			Client:  mockClient,
+			Log:     &logger,
+			BaseURL: baseURL,
 		},
 	}
-	return h
 }
 
 // createTestHandlerWithSilentLog creates a handler with discarded logs
@@ -108,15 +112,17 @@ func createTestHandlerWithSilentLog(mockClient *mockHTTPClient) *handler {
 
 // Test data constants
 const (
-	testOrg      = "testorg"
-	testTeamSlug = "test-team"
-	testOwner    = "testowner"
-	testRepo     = "testrepo"
-	testToken    = "token test-token-123"
+	testOrg        = "testorg"
+	testTeamSlug   = "test-team"
+	testOwner      = "testowner"
+	testRepo       = "testrepo"
+	testToken      = "token test-token-123"
+	testBaseURL    = "https://api.github.com"
+	testGHEBaseURL = "https://ghe.example.com/api/v3"
 )
 
 var (
-	teamRepoExternalURL = fmt.Sprintf("https://api.github.com/orgs/%s/teams/%s/repos/%s/%s", testOrg, testTeamSlug, testOwner, testRepo)
+	teamRepoExternalURL = fmt.Sprintf("%s/orgs/%s/teams/%s/repos/%s/%s", testBaseURL, testOrg, testTeamSlug, testOwner, testRepo)
 	validAdminResp      = `{
 		"id": 12345,
 		"name": "testrepo",
@@ -403,5 +409,38 @@ func TestHandler_ServeHTTP(t *testing.T) {
 				tt.verifyRequests(t, mockClient)
 			}
 		})
+	}
+}
+
+// TestGHEBaseURL_TeamRepoHandler verifies that setting a custom BaseURL causes
+// the handler to build requests against the GHE host instead of api.github.com.
+func TestGHEBaseURL_TeamRepoHandler(t *testing.T) {
+	gheTeamRepoURL := fmt.Sprintf("%s/orgs/%s/teams/%s/repos/%s/%s", testGHEBaseURL, testOrg, testTeamSlug, testOwner, testRepo)
+
+	mockClient := newMockHTTPClient()
+	mockClient.setResponse(gheTeamRepoURL, http.StatusOK, validAdminResp)
+
+	handler := createTestHandlerWithBaseURL(mockClient, testGHEBaseURL)
+
+	mux := http.NewServeMux()
+	mux.Handle("GET /teamrepository/orgs/{org}/teams/{team_slug}/repos/{owner}/{repo}", handler)
+
+	path := fmt.Sprintf("/teamrepository/orgs/%s/teams/%s/repos/%s/%s", testOrg, testTeamSlug, testOwner, testRepo)
+	req := httptest.NewRequest("GET", path, nil)
+	req.Header.Set("Authorization", testToken)
+
+	rr := httptest.NewRecorder()
+	mux.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", rr.Code)
+	}
+	if mockClient.getRequestCount() != 1 {
+		t.Errorf("expected 1 request, got %d", mockClient.getRequestCount())
+	}
+	// Verify the request went to the GHE host, not api.github.com.
+	r := mockClient.getLastRequest()
+	if r.URL.Host != "ghe.example.com" {
+		t.Errorf("expected host ghe.example.com, got %s (full URL: %s)", r.URL.Host, r.URL.String())
 	}
 }
