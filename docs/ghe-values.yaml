@@ -1,0 +1,13 @@
+# Example values file for setting the githubApiBaseUrl for all blueprints to point to a GitHub Enterprise instance.
+github-provider-kog-branchprotection-blueprint:
+  githubApiBaseUrl: "https://ghe.corp.com/api/v3"
+github-provider-kog-collaborator-blueprint:
+  githubApiBaseUrl: "https://ghe.corp.com/api/v3"
+github-provider-kog-repo-blueprint:
+  githubApiBaseUrl: "https://ghe.corp.com/api/v3"
+github-provider-kog-runnergroup-blueprint:
+  githubApiBaseUrl: "https://ghe.corp.com/api/v3"
+github-provider-kog-teamrepo-blueprint:
+  githubApiBaseUrl: "https://ghe.corp.com/api/v3"
+github-provider-kog-workflow-blueprint:
+  githubApiBaseUrl: "https://ghe.corp.com/api/v3"
