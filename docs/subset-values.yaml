@@ -1,0 +1,13 @@
+# Example values file for enabling a subset of blueprints in the github-provider-kog chart.
+github-provider-kog-branchprotection-blueprint:
+  enabled: true
+github-provider-kog-collaborator-blueprint:
+  enabled: false
+github-provider-kog-repo-blueprint:
+  enabled: true
+github-provider-kog-teamrepo-blueprint:
+  enabled: false
+github-provider-kog-workflow-blueprint:
+  enabled: false
+github-provider-kog-runnergroup-blueprint:
+  enabled: false

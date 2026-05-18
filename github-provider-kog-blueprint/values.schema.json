@@ -3,7 +3,7 @@
   "additionalProperties": true,
   "properties": {
     "github-provider-kog-branchprotection-blueprint": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "description": "Configuration for the BranchProtection Blueprint dependency.",
       "properties": {
         "enabled": {
@@ -23,7 +23,7 @@
       "type": "object"
     },
     "github-provider-kog-collaborator-blueprint": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "description": "Configuration for the Collaborator Blueprint dependency.",
       "properties": {
         "enabled": {
@@ -43,7 +43,7 @@
       "type": "object"
     },
     "github-provider-kog-repo-blueprint": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "description": "Configuration for the Repo Blueprint dependency.",
       "properties": {
         "enabled": {
@@ -63,7 +63,7 @@
       "type": "object"
     },
     "github-provider-kog-runnergroup-blueprint": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "description": "Configuration for the Runner Group Blueprint dependency.",
       "properties": {
         "enabled": {
@@ -83,7 +83,7 @@
       "type": "object"
     },
     "github-provider-kog-teamrepo-blueprint": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "description": "Configuration for the Team Repo Blueprint dependency.",
       "properties": {
         "enabled": {
@@ -103,7 +103,7 @@
       "type": "object"
     },
     "github-provider-kog-workflow-blueprint": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "description": "Configuration for the Workflow Blueprint dependency.",
       "properties": {
         "enabled": {
