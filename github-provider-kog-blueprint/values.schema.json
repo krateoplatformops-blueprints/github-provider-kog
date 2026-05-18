@@ -11,6 +11,12 @@
           "description": "Enable the BranchProtection Blueprint dependency.",
           "title": "enabled",
           "type": "boolean"
+        },
+        "githubApiBaseUrl": {
+          "default": "",
+          "description": "GitHub API base URL. Leave empty for github.com. Set to the full API base URL for GitHub Enterprise Server (e.g. https://ghe.corp.com/api/v3).",
+          "title": "githubApiBaseUrl",
+          "type": "string"
         }
       },
       "title": "github-provider-kog-branchprotection-blueprint",
@@ -25,6 +31,12 @@
           "description": "Enable the Collaborator Blueprint dependency.",
           "title": "enabled",
           "type": "boolean"
+        },
+        "githubApiBaseUrl": {
+          "default": "",
+          "description": "GitHub API base URL. Leave empty for github.com. Set to the full API base URL for GitHub Enterprise Server (e.g. https://ghe.corp.com/api/v3).",
+          "title": "githubApiBaseUrl",
+          "type": "string"
         }
       },
       "title": "github-provider-kog-collaborator-blueprint",
@@ -39,6 +51,12 @@
           "description": "Enable the Repo Blueprint dependency.",
           "title": "enabled",
           "type": "boolean"
+        },
+        "githubApiBaseUrl": {
+          "default": "",
+          "description": "GitHub API base URL. Leave empty for github.com. Set to the full API base URL for GitHub Enterprise Server (e.g. https://ghe.corp.com/api/v3).",
+          "title": "githubApiBaseUrl",
+          "type": "string"
         }
       },
       "title": "github-provider-kog-repo-blueprint",
@@ -53,6 +71,12 @@
           "description": "Enable the Runner Group Blueprint dependency.",
           "title": "enabled",
           "type": "boolean"
+        },
+        "githubApiBaseUrl": {
+          "default": "",
+          "description": "GitHub API base URL. Leave empty for github.com. Set to the full API base URL for GitHub Enterprise Server (e.g. https://ghe.corp.com/api/v3).",
+          "title": "githubApiBaseUrl",
+          "type": "string"
         }
       },
       "title": "github-provider-kog-runnergroup-blueprint",
@@ -67,6 +91,12 @@
           "description": "Enable the Team Repo Blueprint dependency.",
           "title": "enabled",
           "type": "boolean"
+        },
+        "githubApiBaseUrl": {
+          "default": "",
+          "description": "GitHub API base URL. Leave empty for github.com. Set to the full API base URL for GitHub Enterprise Server (e.g. https://ghe.corp.com/api/v3).",
+          "title": "githubApiBaseUrl",
+          "type": "string"
         }
       },
       "title": "github-provider-kog-teamrepo-blueprint",
@@ -81,6 +111,12 @@
           "description": "Enable the Workflow Blueprint dependency.",
           "title": "enabled",
           "type": "boolean"
+        },
+        "githubApiBaseUrl": {
+          "default": "",
+          "description": "GitHub API base URL. Leave empty for github.com. Set to the full API base URL for GitHub Enterprise Server (e.g. https://ghe.corp.com/api/v3).",
+          "title": "githubApiBaseUrl",
+          "type": "string"
         }
       },
       "title": "github-provider-kog-workflow-blueprint",

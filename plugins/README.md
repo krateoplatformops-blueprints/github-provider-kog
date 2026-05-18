@@ -394,6 +394,36 @@ For complete GitHub REST API documentation, visit: [GitHub REST API docs](https:
 
 The plugins will forward the `Authorization` header passed in the request to this plugin to the GitHub REST API.
 
+## GitHub Enterprise Server Support
+
+All plugins support GitHub Enterprise Server (GHE) in addition to github.com. The GitHub API base URL is configurable per deployment.
+
+### Environment variable (plugins)
+
+Each plugin reads the `GITHUB_API_BASE_URL` environment variable at startup. When set, it replaces the default `https://api.github.com` for every outbound GitHub API request, including the readiness probe.
+
+| Variable | Default | Example (GHE) |
+|---|---|---|
+| `GITHUB_API_BASE_URL` | `https://api.github.com` | `https://ghe.corp.com/api/v3` |
+
+The value must be a full URL with no trailing slash. The plugin will use it verbatim when constructing API request paths.
+
+### Setting via Helm (plugin blueprints)
+
+For the plugin-backed blueprints (`collaborator`, `teamrepo`, `branchprotection`), set `githubApiBaseUrl` in the blueprint's `values.yaml` or override it at install time. When non-empty, the value is injected as the `GITHUB_API_BASE_URL` environment variable in the plugin `Deployment`.
+
+```yaml
+# values.yaml
+githubApiBaseUrl: "https://ghe.corp.com/api/v3"
+```
+
+```sh
+helm install my-release ./github-provider-kog-collaborator-blueprint \
+  --set githubApiBaseUrl=https://ghe.corp.com/api/v3
+```
+
+When left empty (the default), all blueprints fall back to `https://api.github.com`.
+
 ## Documentation
 
 Each plugin serves its own OpenAPI specification. The documentation is generated using the `swag` tool and is stored within each plugin's directory (e.g., `cmd/collaborator-plugin/docs`).

@@ -17,8 +17,9 @@ type Logger interface {
 }
 
 type HandlerOptions struct {
-	Client HTTPClient // HTTPClient interface
-	Log    Logger     // Logger interface
+	Client  HTTPClient // HTTPClient interface
+	Log     Logger     // Logger interface
+	BaseURL string     // GitHub API base URL, e.g. "https://api.github.com" or "https://ghe.corp.com/api/v3"
 }
 
 // Handler interface
