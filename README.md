@@ -415,6 +415,9 @@ More details about the configuration resources in the [Configuration resources](
 ## GitHub Enterprise Server Support
 
 All resources support GitHub Enterprise Server (GHE) in addition to github.com. The GitHub API base URL is configurable per sub-chart via the `githubApiBaseUrl` value.
+By default, the API base URL is set to `https://api.github.com`, which means that if you don't specify a different URL, the provider will manage resources in github.com.
+
+The URL must be a full base URL with no trailing slash (e.g., `https://ghe.corp.com/api/v3`).
 
 ### Full provider installation (umbrella chart)
 
@@ -464,10 +467,8 @@ helm install github-provider-kog-repo github-provider-kog-repo \
 
 ### How it works
 
-- **Plugin-backed resources** (`BranchProtection`, `Collaborator`, `TeamRepo`): `githubApiBaseUrl` is injected as the `GITHUB_API_BASE_URL` environment variable into the plugin `Deployment`. The plugin uses it for every outbound GitHub API request and for its readiness probe.
-- **Direct-API resources** (`Repo`, `RunnerGroup`, `Workflow`): `githubApiBaseUrl` is templated into the `servers[0].url` field of the OAS asset that the OASGen Provider uses to generate the controller. No plugin is involved.
-
-The URL must be a full base URL with no trailing slash (e.g., `https://ghe.corp.com/api/v3`).
+- **Plugin-backed resources** (`BranchProtection`, `Collaborator`, `TeamRepo`): `githubApiBaseUrl` is injected as the `GITHUB_API_BASE_URL` environment variable into the plugin `Deployment`. The plugin uses it for every outbound GitHub API request and for its readiness probe. In addition the `servers[0].url` field of the OAS asset that the OASGen Provider uses to generate the controller is templated with `githubApiBaseUrl`.
+- **Direct-API resources** (`Repo`, `RunnerGroup`, `Workflow`): `githubApiBaseUrl` is only templated into the `servers[0].url` field of the OAS asset that the OASGen Provider uses to generate the controller. No plugin is involved.
 
 ## Configuration
 
