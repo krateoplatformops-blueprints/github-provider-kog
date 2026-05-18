@@ -54,7 +54,7 @@ helm install github-provider-kog github-provider-kog \
   --repo https://marketplace.krateo.io \
   --namespace <release-namespace> \
   --create-namespace \
-  --version 1.2.0 \
+  --version 1.3.0 \
   --wait
 ```
 
@@ -105,16 +105,16 @@ The following table shows the latest versions of the charts for each resource su
 
 | Main chart      | Version |
 |-----------------|---------|
-| github-provider-kog-blueprint | 1.2.0   |
+| github-provider-kog-blueprint | 1.3.0   |
 
 | Resource        | Version |
 |-----------------|---------|
-| github-provider-kog-branchprotection | 1.1.0   |
-| github-provider-kog-collaborator | 1.1.0   |
-| github-provider-kog-repo | 1.0.0   |
-| github-provider-kog-teamrepo | 1.1.0   |
-| github-provider-kog-workflow | 1.0.0   |
-| github-provider-kog-runnergroup | 1.0.0   |
+| github-provider-kog-branchprotection | 1.2.0   |
+| github-provider-kog-collaborator | 1.2.0   |
+| github-provider-kog-repo | 1.1.0   |
+| github-provider-kog-teamrepo | 1.2.0   |
+| github-provider-kog-workflow | 1.1.0   |
+| github-provider-kog-runnergroup | 1.1.0   |
 
 ## Supported resources
 
@@ -444,7 +444,7 @@ helm install github-provider-kog github-provider-kog \
   --repo https://marketplace.krateo.io \
   --namespace krateo-system \
   --create-namespace \
-  --version 1.2.0 \
+  --version 1.3.0 \
   -f ghe-values.yaml \
   --wait
 ```
