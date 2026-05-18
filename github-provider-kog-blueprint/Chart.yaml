@@ -28,31 +28,37 @@ annotations:
 
 dependencies:
   - name: github-provider-kog-branchprotection # the name of the dependency chart
+    alias: github-provider-kog-branchprotection-blueprint
     version: GITHUB_PROVIDER_KOG_BRANCHPROTECTION_BLUEPRINT_VERSION
     repository: https://marketplace.krateo.io
     condition: github-provider-kog-branchprotection-blueprint.enabled
 
   - name: github-provider-kog-collaborator # the name of the dependency chart
+    alias: github-provider-kog-collaborator-blueprint
     version: GITHUB_PROVIDER_KOG_COLLABORATOR_BLUEPRINT_VERSION
     repository: https://marketplace.krateo.io
     condition: github-provider-kog-collaborator-blueprint.enabled
-  
+
   - name: github-provider-kog-repo # the name of the dependency chart
+    alias: github-provider-kog-repo-blueprint
     version: GITHUB_PROVIDER_KOG_REPO_BLUEPRINT_VERSION
     repository: https://marketplace.krateo.io
     condition: github-provider-kog-repo-blueprint.enabled
-  
+
   - name: github-provider-kog-runnergroup # the name of the dependency chart
+    alias: github-provider-kog-runnergroup-blueprint
     version: GITHUB_PROVIDER_KOG_RUNNERGROUP_BLUEPRINT_VERSION
     repository: https://marketplace.krateo.io
     condition: github-provider-kog-runnergroup-blueprint.enabled
-  
+
   - name: github-provider-kog-teamrepo # the name of the dependency chart
+    alias: github-provider-kog-teamrepo-blueprint
     version: GITHUB_PROVIDER_KOG_TEAMREPO_BLUEPRINT_VERSION
     repository: https://marketplace.krateo.io
     condition: github-provider-kog-teamrepo-blueprint.enabled
-  
+
   - name: github-provider-kog-workflow # the name of the dependency chart
+    alias: github-provider-kog-workflow-blueprint
     version: GITHUB_PROVIDER_KOG_WORKFLOW_BLUEPRINT_VERSION
     repository: https://marketplace.krateo.io
     condition: github-provider-kog-workflow-blueprint.enabled
